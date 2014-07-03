@@ -79,17 +79,12 @@ bool ConnectToFlow()
 bool RegisterDevice()
 {
         FlowMemoryManager memoryManager = FlowMemoryManager_New();
-        char deviceType[MAX_SIZE];
-        char deviceMACAddress[MAX_SIZE];
-        char deviceSerialNumber[MAX_SIZE];
-        char deviceSoftwareVersion[MAX_SIZE];
-        char deviceName[MAX_SIZE];
-        char deviceRegistrationToken[MAX_SIZE];
+        
         bool result = false;
  
         if (memoryManager)
         {
-                if (FlowClient_LoginAsDevice("ci20", "d03110ff7949", NULL, NULL, "0.1", "ci20 MessageBoard", "UO5MYL7WUJ"))
+                if (FlowClient_LoginAsDevice("ci20", "d03110ff7949", "", NULL, "0.1", "ci20 MessageBoard", "UO5MYL7WUJ"))
                 {
                         result = true;
                         printf("Logged in as device.\n\r");
@@ -127,7 +122,7 @@ int main (int argc, char*argv[])
 			}
 			
 			//de-initalise flow core
-			ShutdownLibFlowCore();
+			FlowCore_Shutdown();
         }
         return result;
 }

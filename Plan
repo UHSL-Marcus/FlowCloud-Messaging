@@ -1,0 +1,10 @@
+# Plan
+
+board: 
+  always on listening: heartbeat notification
+  returns sent messages
+  
+Android: 
+  user/owner logs in.
+  sends message to board. Initally search for the device.
+  heatbeat keeps it updated on the boards status

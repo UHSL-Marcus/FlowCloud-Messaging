@@ -6,4 +6,4 @@ Android app sends a message to the Ci20 board, which in turn echos the message b
 E.g.
 
 Android: Hello
-board: echo->Hello
+board: reply: Hello

@@ -4,6 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/FlowMessage_test.iml" filepath="$PROJECT_DIR$/FlowMessage_test.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/flow/flow.iml" filepath="$PROJECT_DIR$/flow/flow.iml" />
+      <module fileurl="file://$PROJECT_DIR$/flowsip/flowsip.iml" filepath="$PROJECT_DIR$/flowsip/flowsip.iml" />
+      <module fileurl="file://$PROJECT_DIR$/flowws/flowws.iml" filepath="$PROJECT_DIR$/flowws/flowws.iml" />
     </modules>
   </component>
 </project>

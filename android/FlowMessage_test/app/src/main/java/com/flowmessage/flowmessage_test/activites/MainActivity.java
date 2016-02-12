@@ -10,9 +10,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.flowmesage.flowmessage_test.flow.UserLogin;
-import com.flowmesage.flowmessage_test.utils.AsyncResponse;
 import com.flowmessage.flowmessage_test.R;
+import com.flowmessage.flowmessage_test.flow.UserLogin;
+import com.flowmessage.flowmessage_test.utils.AsyncResponse;
 import com.imgtec.flow.client.core.Client;
 import com.imgtec.flow.client.core.Core;
 
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public void addInfoText(String text)
     {
         TextView textView = (TextView) findViewById(R.id.info_text);
-        textView.append(text);
+        textView.append(text +"\n");
     }
 
     public void doTest(View view)
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     {
         UserLogin userLogin = new UserLogin(new AsyncResponse() {
             @Override
-            public void processFinish(Object output) {
+            public void processMessage(Object output) {
                 addInfoText((String) output);
             }
         });

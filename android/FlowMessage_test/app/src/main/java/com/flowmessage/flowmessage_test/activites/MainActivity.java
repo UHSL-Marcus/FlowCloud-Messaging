@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         textView.append(text +"\n");
     }
 
-    public void doTest(View view)
+    public void doConnect(View view)
     {
         addInfoText("Sending...");
         doLogin();

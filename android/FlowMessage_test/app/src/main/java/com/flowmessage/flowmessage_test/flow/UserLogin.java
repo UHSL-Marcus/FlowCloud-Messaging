@@ -3,17 +3,24 @@ package com.flowmessage.flowmessage_test.flow;
 import android.os.AsyncTask;
 
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
+import com.imgtec.flow.Flow;
+import com.imgtec.flow.FlowHandler;
 import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.core.Client;
+import com.imgtec.flow.client.users.User;
+import com.imgtec.flow.client.users.UserHelper;
+
+import java.lang.reflect.Array;
 
 /**
  * Created by Marcus on 12/02/2016.
  */
 
-public class UserLogin extends AsyncTask<String, String, String> {
+public class UserLogin extends AsyncTask<String, String, Boolean> {
 
     public AsyncResponse delegate = null;
     private String errorMessage = "";
+    private Result result = new Result();
 
     String server = "http://ws-uat.flowworld.com";
     String oAuth = "Ph3bY5kkU4P6vmtT";
@@ -26,9 +33,17 @@ public class UserLogin extends AsyncTask<String, String, String> {
         delegate = asyncResponse;
     }
 
-    protected String doInBackground(String...info)
+    protected Boolean doInBackground(String...info)
     {
+        Boolean result = false;
         publishProgress("Starting...");
+
+        if (Core.getDefaultClient().isUserLoggedIn()) {
+            publishProgress("User Logged in");
+            return false;
+        }
+
+
         if (initFlowCore()){
             publishProgress("Init complete");
 
@@ -36,19 +51,21 @@ public class UserLogin extends AsyncTask<String, String, String> {
                 publishProgress("Server Set");
 
                 if(userLogin(username, password)) {
-                    return "User Logged in";
+                    publishProgress("User Logged in");
 
                 } else {
-                    return "FlowCore user login failed + (" + errorMessage + ")";
+                    publishProgress("FlowCore user login failed (" + errorMessage + ")");
                 }
 
             } else {
-                return "FlowCore setServer failed (" + errorMessage + ")";
+                publishProgress("FlowCore setServer failed (" + errorMessage + ")");
             }
 
         }else {
-            return "FlowCore init failed ( " + errorMessage + ")";
+            publishProgress("FlowCore init failed ( " + errorMessage + ")");
         }
+
+        return result;
     }
 
 
@@ -56,7 +73,7 @@ public class UserLogin extends AsyncTask<String, String, String> {
        delegate.processMessage(values[0]);
     }
 
-    protected void onPostExecute(String result)
+    protected void onPostExecute(Result result)
     {
         delegate.processMessage(result);
     }
@@ -86,14 +103,62 @@ public class UserLogin extends AsyncTask<String, String, String> {
 
     private boolean userLogin(String username, String password)
     {
+        boolean result = false;
+
         try {
             Client cli = Core.getDefaultClient();
             cli.loginAsUser(username, password, false);
+            result = true;
+            /*User user = UserHelper.newUser(Core.getDefaultClient());
+            //FlowHandler handler = new FlowHandler();
+            //result = Flow.getInstance().userLogin(username, password, user, handler);
+            if (result) {
+                this.result.setSuccess(true);
+                this.result.setUser(user);
+                this.result.setFHandler(handler);
+            } else {
+                errorMessage = "userLogin() failed";
+            }*/
+
         } catch (Exception e) {
             errorMessage = e.getMessage();
-            return false;
         }
-        return true;
+        return result;
 
+    }
+
+    public class Result {
+
+        private Boolean success;
+        private User user;
+        private FlowHandler fHandler;
+
+        public Result () {
+            this.success = false;
+        }
+
+        public Boolean getSuccess() {
+            return success;
+        }
+
+        public void setSuccess(Boolean success) {
+            this.success = success;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public void setUser(User user) {
+            this.user = user;
+        }
+
+        public FlowHandler getFHandler() {
+            return fHandler;
+        }
+
+        public void setFHandler(FlowHandler fHandler) {
+            this.fHandler = fHandler;
+        }
     }
 }

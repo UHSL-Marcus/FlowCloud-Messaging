@@ -85,7 +85,10 @@ public class MainActivity extends AppCompatActivity {
         getDevices.execute();
     }
     
-    private void loginSuccessCallback(){
+    private void loginSuccessCallback(UserLogin.Result result){
+        this._user = result.getUser();
+        this._fHandler = result.getFlowHandler();
+
         ((Button) findViewById(R.id.login_btn)).setVisibility(View.GONE);
         ((Button) findViewById(R.id.getDevices_btn)).setVisibility(View.VISIBLE);
     }
@@ -98,9 +101,15 @@ public class MainActivity extends AppCompatActivity {
                 if(output instanceof String)
                     addInfoText((String) output);
 
-                if(output instanceof Boolean)
-                    if ((Boolean) output)
-                        loginSuccessCallback();
+                if(output instanceof UserLogin.Result) {
+                    UserLogin.Result result = (UserLogin.Result) output;
+                    if (result.getSuccess())
+                        loginSuccessCallback(result);
+                }
+
+                //if(output instanceof Boolean)
+                    //if ((Boolean) output)
+                       // loginSuccessCallback();
             }
         });
         userLogin.execute("stuff");

@@ -16,10 +16,18 @@ import java.lang.reflect.Array;
  * Created by Marcus on 12/02/2016.
  */
 
-public class UserLogin extends AsyncTask<String, String, Boolean> {
+public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
 
     public AsyncResponse delegate = null;
     private String errorMessage = "";
+
+    private Result result = new Result();
+
+    String initXML = "<Settings><Setting><Name>restApiRoot</Name><Value>http://ws-uat.flowworld.com</Value></Setting>" +
+            "<Setting><Name>licenseeKey</Name><Value>Ph3bY5kkU4P6vmtT</Value></Setting>" +
+            "<Setting><Name>licenseeSecret</Name><Value>Sd1SVBfYtGfQvUCR</Value></Setting>" +
+            //"<Setting><Name>configDirectory</Name><Value>/mnt/flowmessage_test/out-linux/bin/config</Value></Setting>" +
+            "<Setting><Name>transportProtocol</Name><Value>TCP</Value></Setting></Settings>";
 
     String server = "http://ws-uat.flowworld.com";
     String oAuth = "Ph3bY5kkU4P6vmtT";
@@ -32,14 +40,12 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
         delegate = asyncResponse;
     }
 
-    protected Boolean doInBackground(String...info)
+    protected Result doInBackground(String...info)
     {
-        Boolean result = false;
         publishProgress("Starting...");
 
         if (Core.getDefaultClient().isUserLoggedIn()) {
             publishProgress("User Logged in");
-            return false;
         }
 
 
@@ -51,7 +57,6 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
 
                 if(userLogin(username, password)) {
                     publishProgress("User Logged in");
-                    result = true;
 
                 } else {
                     publishProgress("FlowCore user login failed (" + errorMessage + ")");
@@ -64,6 +69,10 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
         }else {
             publishProgress("FlowCore init failed ( " + errorMessage + ")");
         }
+
+        if (!result.getSuccess())
+            Flow.getInstance().shutdown();
+
 
         return result;
     }
@@ -82,7 +91,7 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
         boolean result = false;
 
         try {
-            result = Core.init();
+            result = Flow.getInstance().init(initXML);
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
@@ -106,13 +115,56 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
         boolean result = false;
 
         try {
-            Client cli = Core.getDefaultClient();
-            cli.loginAsUser(username, password, false);
-            result = true;
+            User user = UserHelper.newUser(Core.getDefaultClient());
+            FlowHandler handler = new FlowHandler();
+            result = Flow.getInstance().userLogin(username, password, user, handler);
+            if (result) {
+                this.result.setSuccess(true);
+                this.result.setUser(user);
+                this.result.setFlowHandler(handler);
+            } else {
+                errorMessage = "userLogin() failed. " + Flow.getInstance().toString();
+            }
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
         return result;
+
+    }
+
+    public class Result {
+        private Boolean Success;
+        private FlowHandler flowHandler;
+        private User user;
+
+        public Result() {
+            setSuccess(false);
+        }
+
+        public Boolean getSuccess() {
+            return Success;
+        }
+
+        private void setSuccess(Boolean success) {
+            Success = success;
+        }
+
+        public FlowHandler getFlowHandler() {
+            return flowHandler;
+        }
+
+        private void setFlowHandler(FlowHandler flowHandler) {
+            this.flowHandler = flowHandler;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        private void setUser(User user) {
+            this.user = user;
+        }
+
 
     }
 }

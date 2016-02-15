@@ -24,30 +24,18 @@
             android:layout_height="wrap_content"
             android:id="@+id/login_btn"
             android:text="@string/login_btn_text"
-<<<<<<< HEAD
-            android:onClick="doLogin"/>
-=======
             android:onClick="doConnect"/>
->>>>>>> origin/BareBonesAndroid
+
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
-            android:id="@+id/get_devices_btn"
+
+            android:id="@+id/getDevices_btn"
             android:text="@string/get_devices_btn_text"
             android:onClick="doGetDevices"/>
 
-    </LinearLayout>
-
-
-=======
-            android:id="@+id/getDevices_btn"
-            android:text="@string/getDevices_btn_text"
-            android:onClick="doGetDevices"/>
 
     </LinearLayout>
->>>>>>> origin/BareBonesAndroid
-
 
 </LinearLayout>

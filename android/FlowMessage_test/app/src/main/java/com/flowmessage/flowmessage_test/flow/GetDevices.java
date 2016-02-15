@@ -3,6 +3,8 @@ package com.flowmessage.flowmessage_test.flow;
 import android.os.AsyncTask;
 
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
+import com.imgtec.flow.Flow;
+import com.imgtec.flow.FlowHandler;
 import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.users.Device;
 import com.imgtec.flow.client.users.Devices;
@@ -14,11 +16,8 @@ import com.imgtec.flow.client.users.User;
 public class GetDevices extends AsyncTask<String, String, String> {
 
     public AsyncResponse delegate = null;
-<<<<<<< HEAD
     String errorMessage = "";
-=======
-    private String errorMessage = "";
->>>>>>> origin/BareBonesAndroid
+
 
     public GetDevices (AsyncResponse asyncResponse) {
         delegate = asyncResponse;
@@ -39,6 +38,7 @@ public class GetDevices extends AsyncTask<String, String, String> {
                             "\nName: " + device.getDeviceName() +
                             "\nIP Addr: " + device.getRemoteAccessIPAddress() +
                             "\nMAC Addr: " + device.getMACAddress() +
+                            "\nAoR Addr: " + device.getFlowMessagingAddress().getAddress() +
                             "\nSerial #: " + device.getDeviceID() +
                             "\n--End Device--";
                 }

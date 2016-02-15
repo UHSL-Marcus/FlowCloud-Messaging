@@ -20,7 +20,6 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
 
     public AsyncResponse delegate = null;
     private String errorMessage = "";
-    private Result result = new Result();
 
     String server = "http://ws-uat.flowworld.com";
     String oAuth = "Ph3bY5kkU4P6vmtT";
@@ -52,6 +51,7 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
 
                 if(userLogin(username, password)) {
                     publishProgress("User Logged in");
+                    result = true;
 
                 } else {
                     publishProgress("FlowCore user login failed (" + errorMessage + ")");
@@ -73,7 +73,7 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
        delegate.processMessage(values[0]);
     }
 
-    protected void onPostExecute(Result result)
+    protected void onPostExecute(Boolean result)
     {
         delegate.processMessage(result);
     }
@@ -109,56 +109,10 @@ public class UserLogin extends AsyncTask<String, String, Boolean> {
             Client cli = Core.getDefaultClient();
             cli.loginAsUser(username, password, false);
             result = true;
-            /*User user = UserHelper.newUser(Core.getDefaultClient());
-            //FlowHandler handler = new FlowHandler();
-            //result = Flow.getInstance().userLogin(username, password, user, handler);
-            if (result) {
-                this.result.setSuccess(true);
-                this.result.setUser(user);
-                this.result.setFHandler(handler);
-            } else {
-                errorMessage = "userLogin() failed";
-            }*/
-
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
         return result;
 
-    }
-
-    public class Result {
-
-        private Boolean success;
-        private User user;
-        private FlowHandler fHandler;
-
-        public Result () {
-            this.success = false;
-        }
-
-        public Boolean getSuccess() {
-            return success;
-        }
-
-        public void setSuccess(Boolean success) {
-            this.success = success;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public void setUser(User user) {
-            this.user = user;
-        }
-
-        public FlowHandler getFHandler() {
-            return fHandler;
-        }
-
-        public void setFHandler(FlowHandler fHandler) {
-            this.fHandler = fHandler;
-        }
     }
 }

@@ -3,14 +3,20 @@ package com.flowmessage.flowmessage_test.flow;
 import android.os.AsyncTask;
 
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
+import com.imgtec.flow.Flow;
+import com.imgtec.flow.FlowHandler;
 import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.core.Client;
+import com.imgtec.flow.client.users.User;
+import com.imgtec.flow.client.users.UserHelper;
+
+import java.lang.reflect.Array;
 
 /**
  * Created by Marcus on 12/02/2016.
  */
 
-public class UserLogin extends AsyncTask<String, String, String> {
+public class UserLogin extends AsyncTask<String, String, Boolean> {
 
     public AsyncResponse delegate = null;
     private String errorMessage = "";
@@ -26,9 +32,17 @@ public class UserLogin extends AsyncTask<String, String, String> {
         delegate = asyncResponse;
     }
 
-    protected String doInBackground(String...info)
+    protected Boolean doInBackground(String...info)
     {
+        Boolean result = false;
         publishProgress("Starting...");
+
+        if (Core.getDefaultClient().isUserLoggedIn()) {
+            publishProgress("User Logged in");
+            return false;
+        }
+
+
         if (initFlowCore()){
             publishProgress("Init complete");
 
@@ -36,19 +50,22 @@ public class UserLogin extends AsyncTask<String, String, String> {
                 publishProgress("Server Set");
 
                 if(userLogin(username, password)) {
-                    return "User Logged in";
+                    publishProgress("User Logged in");
+                    result = true;
 
                 } else {
-                    return "FlowCore user login failed + (" + errorMessage + ")";
+                    publishProgress("FlowCore user login failed (" + errorMessage + ")");
                 }
 
             } else {
-                return "FlowCore setServer failed (" + errorMessage + ")";
+                publishProgress("FlowCore setServer failed (" + errorMessage + ")");
             }
 
         }else {
-            return "FlowCore init failed ( " + errorMessage + ")";
+            publishProgress("FlowCore init failed ( " + errorMessage + ")");
         }
+
+        return result;
     }
 
 
@@ -56,7 +73,7 @@ public class UserLogin extends AsyncTask<String, String, String> {
        delegate.processMessage(values[0]);
     }
 
-    protected void onPostExecute(String result)
+    protected void onPostExecute(Boolean result)
     {
         delegate.processMessage(result);
     }
@@ -86,14 +103,16 @@ public class UserLogin extends AsyncTask<String, String, String> {
 
     private boolean userLogin(String username, String password)
     {
+        boolean result = false;
+
         try {
             Client cli = Core.getDefaultClient();
             cli.loginAsUser(username, password, false);
+            result = true;
         } catch (Exception e) {
             errorMessage = e.getMessage();
-            return false;
         }
-        return true;
+        return result;
 
     }
 }

@@ -14,7 +14,11 @@ import com.imgtec.flow.client.users.User;
 public class GetDevices extends AsyncTask<String, String, String> {
 
     public AsyncResponse delegate = null;
+<<<<<<< HEAD
     String errorMessage = "";
+=======
+    private String errorMessage = "";
+>>>>>>> origin/BareBonesAndroid
 
     public GetDevices (AsyncResponse asyncResponse) {
         delegate = asyncResponse;

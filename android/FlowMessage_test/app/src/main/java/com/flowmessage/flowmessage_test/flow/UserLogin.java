@@ -1,5 +1,6 @@
 package com.flowmessage.flowmessage_test.flow;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
@@ -14,6 +15,7 @@ import com.imgtec.flow.client.users.UserHelper;
 import com.imgtec.flow.client.users.Users;
 
 import java.lang.reflect.Array;
+import java.util.Locale;
 
 /**
  * Created by Marcus on 12/02/2016.
@@ -22,6 +24,7 @@ import java.lang.reflect.Array;
 public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
 
     public AsyncResponse delegate = null;
+    private Context context;
     private String errorMessage = "";
 
     private Result result = new Result();
@@ -36,11 +39,20 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
     String oAuth = "Ph3bY5kkU4P6vmtT";
     String secret = "Sd1SVBfYtGfQvUCR";
 
-    String username = "m.lee23@herts.ac.uk";
+    String username = "m.lee235@herts.ac.uk";
     String password = "Sm@rtlab1234";
 
-    public UserLogin (AsyncResponse asyncResponse) {
+    public UserLogin (AsyncResponse asyncResponse, Context context) {
+        this.context = context;
         delegate = asyncResponse;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        System.out.println("preExecute");
+        Flow.getInstance().setAppContext(context);
+        System.out.println("preexecute done");
     }
 
     protected Result doInBackground(String...info)

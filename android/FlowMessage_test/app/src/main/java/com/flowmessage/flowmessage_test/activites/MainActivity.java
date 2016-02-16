@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                     //if ((Boolean) output)
                        // loginSuccessCallback();
             }
-        });
-        userLogin.execute("stuff");
+        }, getApplicationContext());
+        userLogin.execute("");
     }
 }

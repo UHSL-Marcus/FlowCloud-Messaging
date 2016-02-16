@@ -64,7 +64,7 @@ bool ConnectToFlow()
 												/* Log in as device */
 												if (memoryManager)
 												{
-														if (FlowClient_LoginAsDevice("ci20", "00552288661155", "103155AX", NULL, "0.1", "ci20 MessageBoard2", "UDNYMIFDYG"))
+														if (FlowClient_LoginAsDevice("ci20", "00552288661155", "103155AX", NULL, "0.1", "ci20 MessageBoard", "Y9D3ZKYSED"))
 														{
 																result = true;
 																printf("Logged in as device.\n\r");

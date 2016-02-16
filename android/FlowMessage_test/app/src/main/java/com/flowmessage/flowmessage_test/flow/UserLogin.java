@@ -5,10 +5,13 @@ import android.os.AsyncTask;
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
 import com.imgtec.flow.Flow;
 import com.imgtec.flow.FlowHandler;
+import com.imgtec.flow.client.core.API;
 import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.core.Client;
+import com.imgtec.flow.client.core.ResourceCreatedResponse;
 import com.imgtec.flow.client.users.User;
 import com.imgtec.flow.client.users.UserHelper;
+import com.imgtec.flow.client.users.Users;
 
 import java.lang.reflect.Array;
 
@@ -26,7 +29,7 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
     String initXML = "<Settings><Setting><Name>restApiRoot</Name><Value>http://ws-uat.flowworld.com</Value></Setting>" +
             "<Setting><Name>licenseeKey</Name><Value>Ph3bY5kkU4P6vmtT</Value></Setting>" +
             "<Setting><Name>licenseeSecret</Name><Value>Sd1SVBfYtGfQvUCR</Value></Setting>" +
-            //"<Setting><Name>configDirectory</Name><Value>/mnt/flowmessage_test/out-linux/bin/config</Value></Setting>" +
+            "<Setting><Name>configDirectory</Name><Value>/mnt/flowmessage_test/out-linux/bin/config</Value></Setting>" +
             "<Setting><Name>transportProtocol</Name><Value>TCP</Value></Setting></Settings>";
 
     String server = "http://ws-uat.flowworld.com";
@@ -47,7 +50,6 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
         if (Core.getDefaultClient().isUserLoggedIn()) {
             publishProgress("User Logged in");
         }
-
 
         if (initFlowCore()){
             publishProgress("Init complete");
@@ -70,8 +72,10 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
             publishProgress("FlowCore init failed ( " + errorMessage + ")");
         }
 
-        if (!result.getSuccess())
+        if (!result.getSuccess()) {
+            publishProgress("Shutting Down");
             Flow.getInstance().shutdown();
+        }
 
 
         return result;
@@ -82,7 +86,7 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
        delegate.processMessage(values[0]);
     }
 
-    protected void onPostExecute(Boolean result)
+    protected void onPostExecute(UserLogin.Result result)
     {
         delegate.processMessage(result);
     }
@@ -100,34 +104,44 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
 
     private boolean setServerDetails(String server, String oAuth, String secret)
     {
-        try {
+        /*try {
             Client cli = Core.getDefaultClient();
             cli.setServer(server, oAuth, secret);
         } catch (Exception e) {
             errorMessage = e.getMessage();
             return false;
-        }
+        }*/
         return true;
     }
 
     private boolean userLogin(String username, String password)
     {
+        System.out.println("Logging in");
         boolean result = false;
 
         try {
+            System.out.println("User");
             User user = UserHelper.newUser(Core.getDefaultClient());
+            System.out.println("handler");
             FlowHandler handler = new FlowHandler();
+            System.out.println("user login");
             result = Flow.getInstance().userLogin(username, password, user, handler);
+            System.out.println("if check");
             if (result) {
+                System.out.println("true");
                 this.result.setSuccess(true);
                 this.result.setUser(user);
                 this.result.setFlowHandler(handler);
             } else {
-                errorMessage = "userLogin() failed. " + Flow.getInstance().toString();
+                System.out.println("false");
+                errorMessage = "userLogin() failed.";
             }
         } catch (Exception e) {
+            System.out.println("exception: " + e.toString() + " -> " + e.getMessage());
             errorMessage = e.getMessage();
         }
+
+        System.out.println("ending");
         return result;
 
     }

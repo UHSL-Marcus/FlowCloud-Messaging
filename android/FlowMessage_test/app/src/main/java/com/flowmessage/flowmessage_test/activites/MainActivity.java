@@ -13,6 +13,7 @@ import com.flowmessage.flowmessage_test.R;
 import com.flowmessage.flowmessage_test.flow.GetDevices;
 import com.flowmessage.flowmessage_test.flow.UserLogin;
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
+import com.imgtec.flow.Flow;
 import com.imgtec.flow.FlowHandler;
 import com.imgtec.flow.client.users.User;
 
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void doLogin()
     {
+        System.out.println("Last Error: " + Flow.getInstance().getLastError());
         UserLogin userLogin = new UserLogin(new AsyncResponse() {
             @Override
             public void processMessage(Object output) {

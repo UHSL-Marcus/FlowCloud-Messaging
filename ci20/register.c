@@ -64,7 +64,7 @@ bool ConnectToFlow()
 												/* Log in as device */
 												if (memoryManager)
 												{
-														if (FlowClient_LoginAsDevice("ci20", "00552288661155", "103155AX", NULL, "0.1", "ci20 MessageBoard", "Y9D3ZKYSED"))
+														if (FlowClient_LoginAsDevice("ci20", "00552288661156", "103155AX", NULL, "0.1", "ci20 MessageBoard", "RGAR3M5N9G"))
 														{
 																result = true;
 																printf("Logged in as device.\n\r");
@@ -103,10 +103,11 @@ bool ConnectToFlow()
 
 void MessageReplyAsyncCallBack(void *context,bool result)
 {
+	printf("callback");
     if(result)
-      printf("\n\rAsyncMessage Response success");
+      printf("AsyncMessage Response success\n\r");
     else
-      printf("\n\rAsyncMessage Resopnse failed");
+      printf("AsyncMessage Resopnse failed\n\r");
 }
 
 void messageReceivedCallBack(FlowMessagingMessage message)
@@ -118,6 +119,8 @@ void messageReceivedCallBack(FlowMessagingMessage message)
         printf("\tMessage Length: %d\n\r",FlowMessagingMessage_GetContentLength(message));
         stpcpy(response, "reply: ");
 		strcat(response, FlowMessagingMessage_GetContent(message));
+		printf("Response to send:\n\r");
+		printf(strcat(response, "\n\r"));
         FlowMessaging_ReplyToMessageAsync(message, "text/plain", response, strlen(response), 100, MessageReplyAsyncCallBack,context);
         fflush(stdout);
 }

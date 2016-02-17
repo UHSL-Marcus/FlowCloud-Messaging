@@ -1,6 +1,8 @@
 package com.flowmessage.flowmessage_test.activites;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -10,11 +12,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.flowmessage.flowmessage_test.R;
-import com.flowmessage.flowmessage_test.flow.GetDevices;
+import com.flowmessage.flowmessage_test.flow.SendMessage;
 import com.flowmessage.flowmessage_test.flow.UserLogin;
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
-import com.imgtec.flow.Flow;
 import com.imgtec.flow.FlowHandler;
+import com.imgtec.flow.MessagingEvent;
 import com.imgtec.flow.client.users.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     User _user;
     FlowHandler _fHandler;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,19 @@ public class MainActivity extends AppCompatActivity {
 
         Button getDeviceButton = (Button) findViewById(R.id.getDevices_btn);
         getDeviceButton.setVisibility(View.GONE);
+
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+
+                System.out.println("message");
+                MessagingEvent messagingEvent = (MessagingEvent)msg.obj;
+
+                addInfoText("Message: '" + messagingEvent.content +
+                        "' Sender: '" + messagingEvent.sender);
+            }
+        };
 
     }
 
@@ -74,16 +90,16 @@ public class MainActivity extends AppCompatActivity {
         doLogin();
     }
 
-    public void doGetDevices(View view)
+    public void doSendMessage(View view)
     {
-        GetDevices getDevices = new GetDevices(new AsyncResponse() {
+        SendMessage sendMessage = new SendMessage(new AsyncResponse() {
             @Override
             public void processMessage(Object output) {
                 if (output instanceof String)
                     addInfoText((String) output);
             }
-        });
-        getDevices.execute();
+        }, _fHandler, handler, _user);
+        sendMessage.execute();
     }
     
     private void loginSuccessCallback(UserLogin.Result result){
@@ -96,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void doLogin()
     {
-        System.out.println("Last Error: " + Flow.getInstance().getLastError());
         UserLogin userLogin = new UserLogin(new AsyncResponse() {
             @Override
             public void processMessage(Object output) {

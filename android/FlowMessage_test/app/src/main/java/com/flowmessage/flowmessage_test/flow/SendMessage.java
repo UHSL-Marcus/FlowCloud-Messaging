@@ -1,50 +1,59 @@
 package com.flowmessage.flowmessage_test.flow;
 
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 
 import com.flowmessage.flowmessage_test.utils.AsyncResponse;
 import com.imgtec.flow.Flow;
 import com.imgtec.flow.FlowHandler;
+import com.imgtec.flow.MessagingEvent;
 import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.users.Device;
 import com.imgtec.flow.client.users.Devices;
 import com.imgtec.flow.client.users.User;
 
+
+
+
 /**
  * Created by Marcus on 15/02/2016.
  */
-public class GetDevices extends AsyncTask<String, String, String> {
+public class SendMessage extends AsyncTask<String, String, String> {
 
     public AsyncResponse delegate = null;
+    FlowHandler flowHandler;
+    Handler handler;
+    User user;
     String errorMessage = "";
 
 
-    public GetDevices (AsyncResponse asyncResponse) {
+    public SendMessage(AsyncResponse asyncResponse, FlowHandler flowHandler, Handler handler, User user) {
         delegate = asyncResponse;
+        this.flowHandler = flowHandler;
+        this.handler = handler;
+        this.user = user;
     }
 
     protected String doInBackground(String...info)
     {
         try {
-            User user = Core.getDefaultClient().getLoggedInUser();
             Devices devices = user.getAllDevices();
             if (devices != null && devices.size() == 0)
-                return "No Devices";
+                return "board not online";
             else {
-                String allDeviceInfo = "\n\n---Available Devices---";
+
                 for (int i = 0; i < devices.size(); i++) {
                     Device device = devices.get(i);
-                    allDeviceInfo += "\n--Device--" +
-                            "\nName: " + device.getDeviceName() +
-                            "\nIP Addr: " + device.getRemoteAccessIPAddress() +
-                            "\nMAC Addr: " + device.getMACAddress() +
-                            "\nAoR Addr: " + device.getFlowMessagingAddress().getAddress() +
-                            "\nSerial #: " + device.getDeviceID() +
-                            "\n--End Device--";
-                }
-                allDeviceInfo += "\n---End---";
+                    Flow.getInstance().subscribe(flowHandler, user.getFlowMessagingAddress().getAddress(),
+                            MessagingEvent.MessagingEventCategory.FLOW_MESSAGING_EVENTCATEGORY_ASYNC_MESSAGE, "", 50, handler);
 
-                return allDeviceInfo;
+                    String[] addrList = new String[] {device.getFlowMessagingAddress().getAddress()};
+                    Flow.getInstance().sendAsyncMessage(flowHandler, addrList, "Message");
+                }
+
+
+                return "Send Message";
 
             }
         } catch (Exception e) {

@@ -35,11 +35,7 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
             "<Setting><Name>configDirectory</Name><Value>/mnt/flowmessage_test/out-linux/bin/config</Value></Setting>" +
             "<Setting><Name>transportProtocol</Name><Value>TCP</Value></Setting></Settings>";
 
-    String server = "http://ws-uat.flowworld.com";
-    String oAuth = "Ph3bY5kkU4P6vmtT";
-    String secret = "Sd1SVBfYtGfQvUCR";
-
-    String username = "m.lee235@herts.ac.uk";
+    String username = "mail+flow@marcuslee1.co.uk";
     String password = "Sm@rtlab1234";
 
     public UserLogin (AsyncResponse asyncResponse, Context context) {
@@ -50,9 +46,7 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        System.out.println("preExecute");
         Flow.getInstance().setAppContext(context);
-        System.out.println("preexecute done");
     }
 
     protected Result doInBackground(String...info)
@@ -61,34 +55,22 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
 
         if (Core.getDefaultClient().isUserLoggedIn()) {
             publishProgress("User Logged in");
+            publishProgress("username: " + result.getUser().getUserName());
         }
 
         if (initFlowCore()){
             publishProgress("Init complete");
 
-            if (setServerDetails(server, oAuth, secret)){
-                publishProgress("Server Set");
-
-                if(userLogin(username, password)) {
-                    publishProgress("User Logged in");
-
-                } else {
-                    publishProgress("FlowCore user login failed (" + errorMessage + ")");
-                }
+            if(userLogin(username, password)) {
+                publishProgress("User Logged in");
 
             } else {
-                publishProgress("FlowCore setServer failed (" + errorMessage + ")");
+                publishProgress("FlowCore user login failed (" + errorMessage + ")");
             }
 
         }else {
             publishProgress("FlowCore init failed ( " + errorMessage + ")");
         }
-
-        if (!result.getSuccess()) {
-            publishProgress("Shutting Down");
-            Flow.getInstance().shutdown();
-        }
-
 
         return result;
     }
@@ -114,46 +96,23 @@ public class UserLogin extends AsyncTask<String, String, UserLogin.Result> {
         return result;
     }
 
-    private boolean setServerDetails(String server, String oAuth, String secret)
-    {
-        /*try {
-            Client cli = Core.getDefaultClient();
-            cli.setServer(server, oAuth, secret);
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
-            return false;
-        }*/
-        return true;
-    }
-
     private boolean userLogin(String username, String password)
     {
-        System.out.println("Logging in");
         boolean result = false;
 
         try {
-            System.out.println("User");
             User user = UserHelper.newUser(Core.getDefaultClient());
-            System.out.println("handler");
             FlowHandler handler = new FlowHandler();
-            System.out.println("user login");
             result = Flow.getInstance().userLogin(username, password, user, handler);
-            System.out.println("if check");
             if (result) {
-                System.out.println("true");
                 this.result.setSuccess(true);
                 this.result.setUser(user);
                 this.result.setFlowHandler(handler);
-            } else {
-                System.out.println("false");
-                errorMessage = "userLogin() failed.";
             }
         } catch (Exception e) {
-            System.out.println("exception: " + e.toString() + " -> " + e.getMessage());
             errorMessage = e.getMessage();
         }
 
-        System.out.println("ending");
         return result;
 
     }

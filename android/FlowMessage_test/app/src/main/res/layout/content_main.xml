@@ -32,8 +32,8 @@
             android:layout_height="wrap_content"
 
             android:id="@+id/getDevices_btn"
-            android:text="@string/get_devices_btn_text"
-            android:onClick="doGetDevices"/>
+            android:text="@string/send_message_btn_text"
+            android:onClick="doSendMessage"/>
 
 
     </LinearLayout>

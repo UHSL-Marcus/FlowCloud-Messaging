@@ -1,24 +1,25 @@
 package com.uhsl.flowmessage.flowmessagev2;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.support.v7.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements  {
+public class MainActivity extends AppCompatActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (findViewById(R.id.fragment_container) != null && savedInstanceState != null) {
-            MainView mainView = new MainView();
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, mainView).commit();
-        }
-    }
-
-    public void switchToLoginView(){
+        setSupportActionBar((Toolbar) findViewById(R.id.main_toolbar));
+        System.out.println("createMain");
 
     }
+
+    public void doChooseDeviceActivity(View view) {
+        startActivity(new Intent(this, ChooseDeviceActivity.class));
+    }
+
 }

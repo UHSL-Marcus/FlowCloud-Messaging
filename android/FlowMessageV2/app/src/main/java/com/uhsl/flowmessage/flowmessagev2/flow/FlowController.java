@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.uhsl.flowmessage.flowmessagev2.utils.configSettings;
+import com.imgtec.flow.client.core.NetworkException;
+import com.uhsl.flowmessage.flowmessagev2.utils.ConfigSettings;
+
+import java.net.MalformedURLException;
 
 /**
  * Created by Marcus on 19/02/2016.
@@ -13,7 +16,7 @@ public class FlowController {
 
     private static volatile FlowController instance;
 
-    private static boolean isFlowInit = false;
+    private static boolean flowInit = false;
     private FlowConnection flowConnection;
     private SharedPreferences sharedPreferences;
     private Context context;
@@ -32,43 +35,45 @@ public class FlowController {
     private FlowController(Activity activity) {
         flowConnection = FlowConnection.getInstance(activity);
         context = activity.getApplicationContext();
-        sharedPreferences = context.getSharedPreferences(configSettings.SETTINGS, Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences(ConfigSettings.SETTINGS, Context.MODE_PRIVATE);
     }
 
     public boolean initFlowIfNot(Activity activity) {
         boolean result = false;
-        if (!isFlowInit) {
-            if (checkServerSettings()) {
-                result = flowInit();
-                if (result)
-                    isFlowInit = true;
-            } // TODO: snackbar prompting server settings
+        if (!flowInit) {
+            result = flowInit();
+            if (result)
+                flowInit = true;
+            //TODO: snackbar -> connection failed, check server settings
         } // TODO: flow already initalised
         return result;
     }
 
-    public boolean flowInit() {
-        return flowConnection.getFlowInstance().init(
-                flowConnection.getInitXML(
-                        sharedPreferences.getString(configSettings.SERVER, configSettings.DEFAULT_VALUE),
-                        sharedPreferences.getString(configSettings.OAUTH_KEY, configSettings.DEFAULT_VALUE),
-                        sharedPreferences.getString(configSettings.OAUTH_SECRET, configSettings.DEFAULT_VALUE)
-                )
-        );
+    public boolean flowInit()  {
+        try {
+            return flowConnection.getFlowInstance().init(
+                    flowConnection.getInitXML(
+                            sharedPreferences.getString(ConfigSettings.SERVER, ConfigSettings.DEFAULT_VALUE),
+                            sharedPreferences.getString(ConfigSettings.OAUTH_KEY, ConfigSettings.DEFAULT_VALUE),
+                            sharedPreferences.getString(ConfigSettings.OAUTH_SECRET, ConfigSettings.DEFAULT_VALUE)
+                    )
+            );
+        } catch (NetworkException e) {
+            System.out.println("Network Exception");
+            return false;
+        }
+        catch (Exception e) {
+            System.out.println("Exception");
+            return false;
+        }
     }
 
-    public boolean checkServerSettings() {
-        if (sharedPreferences.getString(configSettings.SERVER, configSettings.DEFAULT_VALUE).equals(configSettings.DEFAULT_VALUE))
-            return false;
-
-        if (sharedPreferences.getString(configSettings.OAUTH_SECRET, configSettings.DEFAULT_VALUE).equals(configSettings.DEFAULT_VALUE))
-            return false;
-
-        if (sharedPreferences.getString(configSettings.OAUTH_KEY, configSettings.DEFAULT_VALUE).equals(configSettings.DEFAULT_VALUE))
-            return false;
-
-        return true;
+    public boolean isFlowInit() {
+        return flowInit;
     }
+
+
+
 
 
 }

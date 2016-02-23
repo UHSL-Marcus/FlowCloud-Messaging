@@ -15,6 +15,10 @@ public class ConfigSettings {
     public static final String OAUTH_KEY = "OAUTH_KEY";
     public static final String OAUTH_SECRET = "OAUTH_SECRET";
 
+    public static void clearAll(Context context) {
+        context.getSharedPreferences(ConfigSettings.SETTINGS, Context.MODE_PRIVATE).edit().clear().commit();
+    }
+
     public static void saveServerSettings(Context context, String sever, String oAuthKey, String oAuthSecret) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(ConfigSettings.SETTINGS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

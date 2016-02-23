@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.core.NetworkException;
 import com.uhsl.flowmessage.flowmessagev2.utils.ConfigSettings;
 
@@ -41,35 +42,37 @@ public class FlowController {
     public boolean initFlowIfNot(Activity activity) {
         boolean result = false;
         if (!flowInit) {
-            result = flowInit();
+            result = flowInit(activity);
             if (result)
                 flowInit = true;
-            //TODO: snackbar -> connection failed, check server settings
-        } // TODO: flow already initalised
+        }
         return result;
     }
 
-    public boolean flowInit()  {
-        try {
+    public boolean flowInit(Activity activity)  {
+        String server = ConfigSettings.getStringSetting(activity, ConfigSettings.SERVER);
+        if (flowConnection.testServerUrl(server)) {
             return flowConnection.getFlowInstance().init(
                     flowConnection.getInitXML(
-                            sharedPreferences.getString(ConfigSettings.SERVER, ConfigSettings.DEFAULT_VALUE),
-                            sharedPreferences.getString(ConfigSettings.OAUTH_KEY, ConfigSettings.DEFAULT_VALUE),
-                            sharedPreferences.getString(ConfigSettings.OAUTH_SECRET, ConfigSettings.DEFAULT_VALUE)
+                            server,
+                            ConfigSettings.getStringSetting(activity, ConfigSettings.OAUTH_KEY),
+                            ConfigSettings.getStringSetting(activity, ConfigSettings.OAUTH_SECRET)
                     )
             );
-        } catch (NetworkException e) {
-            System.out.println("Network Exception");
+        } else {
             return false;
         }
-        catch (Exception e) {
-            System.out.println("Exception");
-            return false;
-        }
+
     }
+
+
 
     public boolean isFlowInit() {
         return flowInit;
+    }
+
+    public boolean isUserLoggedIn () {
+        return Core.getDefaultClient().isUserLoggedIn();
     }
 
 

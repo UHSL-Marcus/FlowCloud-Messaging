@@ -5,6 +5,9 @@ import android.content.Context;
 import com.imgtec.flow.Flow;
 import com.imgtec.flow.FlowHandler;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 /**
  * Created by Marcus on 19/02/2016.
  */
@@ -52,7 +55,7 @@ public class FlowConnection {
                 "<Settings>" +
                 "<Setting>" +
                 "<Name>restApiRoot</Name>" +
-                "<Value>" + server + "</Value>" +
+                "<Value>" + server + "l</Value>" +
                 "</Setting>" +
                 "<Setting>" +
                 "<Name>licenseeKey</Name>" +
@@ -67,6 +70,18 @@ public class FlowConnection {
                 "<Value>/mnt/img_messagingtest/outlinux/bin/config</Value>" +
                 "</Setting>" +
                 "</Settings>";
+    }
+
+    public boolean testServerUrl(String server) {
+        try {
+            URL url = new URL(server + "l");
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.connect();
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 

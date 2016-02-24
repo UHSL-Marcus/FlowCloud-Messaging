@@ -32,10 +32,7 @@ public class ConfigSettings {
         SharedPreferences sharedPreferences = context.getSharedPreferences(ConfigSettings.SETTINGS, Context.MODE_PRIVATE);
         if (!sharedPreferences.contains(ConfigSettings.OAUTH_KEY)) return false;
         if (!sharedPreferences.contains(ConfigSettings.OAUTH_SECRET)) return false;
-        if (!sharedPreferences.contains(ConfigSettings.SERVER))
-        {
-
-        };
+        if (!sharedPreferences.contains(ConfigSettings.SERVER)) return false;
 
         return true;
     }

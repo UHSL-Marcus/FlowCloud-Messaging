@@ -16,7 +16,7 @@ public class ActivityController {
         activity.finish();
     }
 
-    public static void showSnackbarNoActionFromBackground(final View view, final String message, Handler handler) {
+    public static void showSnackbarNoAction(final View view, final String message, Handler handler) {
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -25,7 +25,17 @@ public class ActivityController {
         });
     }
 
-    public static void showSnackbarNoAction(View view, String message) {
-        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
+    public static void showSnackbar(final View view, final String message, final String actionMessage,
+                                    final View.OnClickListener listener, Handler handler) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+                snackbar.setAction(actionMessage, listener);
+                snackbar.show();
+            }
+        });
     }
+
+
 }

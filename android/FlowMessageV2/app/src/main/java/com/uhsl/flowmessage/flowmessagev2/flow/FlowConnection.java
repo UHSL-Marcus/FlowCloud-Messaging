@@ -55,7 +55,7 @@ public class FlowConnection {
                 "<Settings>" +
                 "<Setting>" +
                 "<Name>restApiRoot</Name>" +
-                "<Value>" + server + "l</Value>" +
+                "<Value>" + server + "</Value>" +
                 "</Setting>" +
                 "<Setting>" +
                 "<Name>licenseeKey</Name>" +
@@ -74,7 +74,7 @@ public class FlowConnection {
 
     public boolean testServerUrl(String server) {
         try {
-            URL url = new URL(server + "l");
+            URL url = new URL(server);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.connect();
 

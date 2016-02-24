@@ -43,11 +43,27 @@ public class FlowController {
         boolean result = false;
         if (!flowInit) {
             result = flowInit(activity);
-            if (result)
+            if (result && Core.getDefaultClient().getAPI().hasSettings())
                 flowInit = true;
         }
+
         return result;
     }
+
+    public boolean reinitiliseFlow(Activity activity) {
+        if (shutdownFlow()) {
+            return initFlowIfNot(activity);
+        }
+        return false;
+    }
+
+    public boolean shutdownFlow() {
+        if (flowConnection.getFlowInstance().shutdown())
+            flowInit = false;
+
+        return !flowInit;
+    }
+
 
     public boolean flowInit(Activity activity)  {
         String server = ConfigSettings.getStringSetting(activity, ConfigSettings.SERVER);

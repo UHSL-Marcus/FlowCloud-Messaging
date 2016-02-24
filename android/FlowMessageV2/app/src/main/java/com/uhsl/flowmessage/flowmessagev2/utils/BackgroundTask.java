@@ -48,8 +48,10 @@ public class BackgroundTask {
 
                } catch (ExecutionException e) {
                    System.out.println("Execution Exception");
+                   //TODO: handle these
                } catch (Exception e) {
                    System.out.println("other Exception");
+                   //TODO: and these
                }
            }
        }).start();
@@ -62,10 +64,12 @@ public class BackgroundTask {
             public void run() {
                 if (Looper.myLooper() == null)
                     Looper.prepare();
+
                 try {
                     asyncRun.run();
                 } catch (Exception e) {
                     System.out.println("Threaded Exception: " + e.toString() + " -> " + e.getMessage());
+                    //TODO: handle this too
                 }
             }
         };

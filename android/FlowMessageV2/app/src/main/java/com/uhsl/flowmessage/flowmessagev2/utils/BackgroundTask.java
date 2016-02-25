@@ -47,12 +47,13 @@ public class BackgroundTask {
                    callback.onBackGroundTaskResult(result, task);
 
                } catch (ExecutionException e) {
-                   System.out.println("Execution Exception");
+                   System.out.println("Execution Exception: " + e.toString() );
                    //TODO: handle these
                } catch (Exception e) {
-                   System.out.println("other Exception");
+                   System.out.println("other Exception: " + e.toString());
                    //TODO: and these
                }
+
            }
        }).start();
 

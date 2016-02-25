@@ -4,9 +4,14 @@ import android.content.Context;
 
 import com.imgtec.flow.Flow;
 import com.imgtec.flow.FlowHandler;
+import com.imgtec.flow.client.core.Core;
+import com.imgtec.flow.client.users.Device;
+import com.imgtec.flow.client.users.Devices;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Marcus on 19/02/2016.
@@ -17,8 +22,11 @@ public class FlowConnection {
 
     private Flow flowInstance;
     private FlowHandler userFlowHandler;
-    private String username;
-    private String password;
+    private String username = "mail+flow@marcuslee1.co.uk";
+    private String password = "Sm@rtlab1234";
+    private List<Device> deviceCache = new CopyOnWriteArrayList<>();
+    private Device currentDevice;
+
 
     private FlowConnection(Context context) {
         flowInstance = Flow.getInstance();
@@ -48,6 +56,19 @@ public class FlowConnection {
     public void setUserCredentials(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public void clearUserCredentials() {
+        username = null;
+        password = null;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getInitXML(String server, String oAuthKey, String oAuthSecret) {
@@ -82,6 +103,36 @@ public class FlowConnection {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public List<Device> getUserDevices(){
+        Devices devices = Core.getDefaultClient().getLoggedInUser().getOwnedDevices();
+        refreshDeviceCache(devices);
+        return deviceCache;
+    }
+
+    public void refreshDeviceCache(Devices devices){
+        for (Device device : deviceCache) {
+            if (!devices.contains(device))
+                deviceCache.remove(device);
+        }
+
+        for (Device device : devices) {
+            if (!deviceCache.contains(device))
+                deviceCache.add(device);
+        }
+    }
+
+    public List<Device> getDeviceCache(){
+        return deviceCache;
+    }
+
+    public void setCurrentDevice(Device currentDevice) {
+        this.currentDevice = currentDevice;
+    }
+
+    public Device getCurrentDevice() {
+        return currentDevice;
     }
 
 

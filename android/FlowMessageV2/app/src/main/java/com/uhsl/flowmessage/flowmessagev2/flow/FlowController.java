@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.imgtec.flow.ErrorType;
 import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.core.NetworkException;
+import com.imgtec.flow.client.users.Device;
+import com.imgtec.flow.client.users.User;
+import com.imgtec.flow.client.users.UserHelper;
 import com.uhsl.flowmessage.flowmessagev2.utils.ConfigSettings;
 
 import java.net.MalformedURLException;
+import java.util.List;
 
 /**
  * Created by Marcus on 19/02/2016.
@@ -51,17 +56,25 @@ public class FlowController {
     }
 
     public boolean reinitiliseFlow(Activity activity) {
-        if (shutdownFlow()) {
+        if (shutdownFlow(false)) {
             return initFlowIfNot(activity);
         }
         return false;
     }
 
-    public boolean shutdownFlow() {
-        if (flowConnection.getFlowInstance().shutdown())
+    public boolean shutdownFlow(boolean clearSession) {
+
+        if (logoutUser(clearSession) && flowConnection.getFlowInstance().shutdown())
             flowInit = false;
 
         return !flowInit;
+    }
+
+    public boolean logoutUser(boolean clearSession) {
+        if (clearSession)
+            flowConnection.clearUserCredentials();
+
+        return flowConnection.getFlowInstance().logOut(flowConnection.getUserFlowHandler());
     }
 
 
@@ -81,7 +94,30 @@ public class FlowController {
 
     }
 
+    public boolean hasSavedCredentials() {
+        return flowConnection.getUsername() != null && flowConnection.getPassword() != null;
+    }
 
+    public boolean userLogin(String username, String password) {
+        if (!isUserLoggedIn()) {
+            User user = UserHelper.newUser(Core.getDefaultClient());
+            boolean loggedIn = flowConnection.getFlowInstance().userLogin(username, password, user, flowConnection.getUserFlowHandler());
+            if (loggedIn)
+                flowConnection.setUserCredentials(username, password);
+
+            return loggedIn;
+        }
+        return true;
+    }
+
+    public boolean userReLogin() {
+        System.out.println("saved detils: " + flowConnection.getUsername() + " : " + flowConnection.getPassword());
+        return userLogin(flowConnection.getUsername(), flowConnection.getPassword());
+    }
+
+    public ErrorType getLastFlowError() {
+        return flowConnection.getFlowInstance().getLastError();
+    }
 
     public boolean isFlowInit() {
         return flowInit;
@@ -91,8 +127,15 @@ public class FlowController {
         return Core.getDefaultClient().isUserLoggedIn();
     }
 
+    public List<Device> requestDevices(boolean refreshed) {
+        if (refreshed)
+            return flowConnection.getUserDevices();
 
+        return flowConnection.getDeviceCache();
+    }
 
-
+    public void setConnectedDevice(Device device) {
+        flowConnection.setCurrentDevice(device);
+    }
 
 }

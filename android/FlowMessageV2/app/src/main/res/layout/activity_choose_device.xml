@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:text="Connect"
             android:layout_gravity="end"
-            android:enabled="false"
+            android:onClick="doConnectToDevice"
             android:id="@+id/choose_device_connect_btn"/>
 
     </LinearLayout>

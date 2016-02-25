@@ -8,12 +8,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.widget.Toolbar;
 
+import com.imgtec.flow.Flow;
+import com.uhsl.flowmessage.flowmessagev2.flow.FlowController;
+import com.uhsl.flowmessage.flowmessagev2.utils.ActivityController;
+
 public class MainActivity extends AppCompatActivity  {
+
+    private FlowController flowController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        flowController = FlowController.getInstance(this);
 
         setSupportActionBar((Toolbar) findViewById(R.id.main_toolbar));
         System.out.println("createMain");
@@ -36,6 +44,14 @@ public class MainActivity extends AppCompatActivity  {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.toolbar_settings_item) {
             startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        } else if(item.getItemId() == R.id.toolbar_logout_item) {
+            flowController.logoutUser(true);
+            if (!flowController.isUserLoggedIn()) {
+                ActivityController.changeActivity(this, new Intent(this, LoginActivity.class));
+            } else {
+                System.out.println("logout failed");
+            }
             return true;
         } else
             return super.onOptionsItemSelected(item);

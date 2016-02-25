@@ -125,17 +125,22 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
     }
 
 
-    public void onBackGroundTaskResult(Boolean result, int task) {
-        if (task == 1) {
-            reconnectBtn.setText("Reconnect");
-            if (result) {
-                System.out.println("recon callback true");
-                ActivityController.changeActivity(this, new Intent(this, LoginActivity.class));
-            } else {
-                ActivityController.showSnackbarNoAction(findViewById(R.id.settings_coordinator_layout),
-                        "Check API Settings", handler);
+    public void onBackGroundTaskResult(final Boolean result, final int task) {
+        System.out.println("callback");
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (task == 1) {
+                    if (result) {
+                        System.out.println("recon callback true");
+                        ActivityController.changeActivity(SettingsActivity.this, new Intent(SettingsActivity.this, LoginActivity.class));
+                    } else {
+                        reconnectBtn.setText("Reconnect");
+                        ActivityController.showSnackbarNoAction(findViewById(R.id.settings_coordinator_layout),
+                                "Check API Settings", handler);
+                    }
+                }
             }
-        }
-
+        });
     }
 }

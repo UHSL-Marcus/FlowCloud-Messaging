@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">FlowMessage_Test</string>
-    <string name="action_settings">Settings</string>
-    <string name="login_btn_text">Login</string>
-    <string name="send_message_btn_text">Send Message</string>
-</resources>

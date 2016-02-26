@@ -42,13 +42,14 @@
 
         </LinearLayout>
 
-
-        <TextView
+        <ListView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="Placeholder text"
-            android:id="@+id/main_message_textView"/>
+            android:choiceMode="none"
+            android:id="@+id/main_message_listView">
+
+        </ListView>
 
 
         <LinearLayout
@@ -68,6 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Send"
+                android:onClick="doSendMessage"
                 android:id="@+id/main_send_message_btn" />
 
         </LinearLayout>

@@ -81,9 +81,9 @@ public class ChooseDeviceActivity extends AppCompatActivity implements Backgroun
 
 
         ArrayList<String[]> placeholder = new ArrayList<String[]>();
-        placeholder.add(new String[]{"No Devices", ""});
+        placeholder.add(new String[]{"No Devices", "", ""});
 
-        listView.setAdapter(new ChooseDeviceArrayAdapter(this, placeholder));
+        listView.setAdapter(new ThreeLineOptionalHiddenArrayAdapter(this, placeholder, false, false, true));
 
         BackgroundTask.call(new AsyncCall<List<Device>>() {
             @Override
@@ -98,10 +98,11 @@ public class ChooseDeviceActivity extends AppCompatActivity implements Backgroun
             try {
                 ArrayList<String[]> deviceList = new ArrayList<String[]>();
                 for (Device device : result) {
-                    deviceList.add(new String[]{device.getDeviceName(), device.getFlowMessagingAddress().getAddress()});
+                    deviceList.add(new String[]{device.getDeviceName(),
+                            device.getFlowMessagingAddress().getAddress(), ""});
                 }
 
-                listView.setAdapter(new ChooseDeviceArrayAdapter(ChooseDeviceActivity.this, deviceList));
+                listView.setAdapter(new ThreeLineOptionalHiddenArrayAdapter(ChooseDeviceActivity.this, deviceList, false, false, true));
             } catch (Exception e) {
                 System.out.println("get device exception: " + e.toString());
             }
@@ -111,8 +112,8 @@ public class ChooseDeviceActivity extends AppCompatActivity implements Backgroun
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                    ChooseDeviceArrayAdapter.ViewHolder viewHolder =
-                            (ChooseDeviceArrayAdapter.ViewHolder) view.getTag();
+                    ThreeLineOptionalHiddenArrayAdapter.ViewHolder viewHolder =
+                            (ThreeLineOptionalHiddenArrayAdapter.ViewHolder) view.getTag();
 
                     for (Device device : result) {
                         if (device.getFlowMessagingAddress().getAddress().equals(viewHolder.lineTwo.getText()))
@@ -131,7 +132,7 @@ public class ChooseDeviceActivity extends AppCompatActivity implements Backgroun
     public void doConnectToDevice(View view) {
         if (selectedDevice != null){
             flowController.setConnectedDevice(selectedDevice);
-            ActivityController.changeActivity(this, new Intent(this, MainActivity.class));
+            this.startActivity(new Intent(this, MainActivity.class));
         }
 
 

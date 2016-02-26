@@ -41,6 +41,12 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
         username_editText = (EditText) findViewById(R.id.login_username_editText);
         password_editText = (EditText) findViewById(R.id.login_password_editText);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         if (true) { //TODO: check internet connectivity
             if (ConfigSettings.checkServerSettings(this))
                 initaliseFlow(this);
@@ -50,7 +56,6 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
         } else {
             //TODO: Snackbar -> no internet
         }
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu){
@@ -61,7 +66,7 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.toolbar_settings_item) {
-            ActivityController.changeActivity(this, new Intent(this, SettingsActivity.class));
+            this.startActivity(new Intent(this, SettingsActivity.class));
             return true;
         } else
             return super.onOptionsItemSelected(item);
@@ -116,8 +121,8 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ActivityController.changeActivity(LoginActivity.this,
-                                new Intent(LoginActivity.this, SettingsActivity.class));
+                        LoginActivity.this.startActivity(new Intent(LoginActivity.this,
+                                SettingsActivity.class));
                     }
                 }, handler);
     }

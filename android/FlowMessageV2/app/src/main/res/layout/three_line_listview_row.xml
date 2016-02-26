@@ -9,12 +9,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:id="@+id/choose_device_row_first_line"/>
+        android:id="@+id/three_line_listView_row_first_line"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:id="@+id/choose_device_row_second_line"/>
+        android:id="@+id/three_line_listView_row_second_line"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:id="@+id/three_line_listView_row_third_line"/>
 
 </LinearLayout>

@@ -133,7 +133,7 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
                 if (task == 1) {
                     if (result) {
                         System.out.println("recon callback true");
-                        ActivityController.changeActivity(SettingsActivity.this, new Intent(SettingsActivity.this, LoginActivity.class));
+                        SettingsActivity.this.startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
                     } else {
                         reconnectBtn.setText("Reconnect");
                         ActivityController.showSnackbarNoAction(findViewById(R.id.settings_coordinator_layout),

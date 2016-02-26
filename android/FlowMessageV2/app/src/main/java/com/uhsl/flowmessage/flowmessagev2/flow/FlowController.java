@@ -102,8 +102,10 @@ public class FlowController {
         if (!isUserLoggedIn()) {
             User user = UserHelper.newUser(Core.getDefaultClient());
             boolean loggedIn = flowConnection.getFlowInstance().userLogin(username, password, user, flowConnection.getUserFlowHandler());
-            if (loggedIn)
+            if (loggedIn) {
                 flowConnection.setUserCredentials(username, password);
+                flowConnection.subscribeAsyncMessages();
+            }
 
             return loggedIn;
         }
@@ -136,6 +138,19 @@ public class FlowController {
 
     public void setConnectedDevice(Device device) {
         flowConnection.setCurrentDevice(device);
+    }
+
+    public Device getConnectedDevice() {
+        return flowConnection.getCurrentDevice();
+    }
+
+    public void setAsyncMessageListener(AsyncMessageListener asyncMessageListener) {
+        flowConnection.setAsyncMessageListener(asyncMessageListener);
+    }
+
+    public boolean sendAsyncMessage(String recipient, String message) {
+        return flowConnection.getFlowInstance().sendAsyncMessage(flowConnection.getUserFlowHandler(),
+                new String[]{recipient}, message);
     }
 
 }

@@ -1,12 +1,16 @@
 package com.uhsl.flowmessage.flowmessagev2.flow;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 
 import com.imgtec.flow.Flow;
 import com.imgtec.flow.FlowHandler;
+import com.imgtec.flow.MessagingEvent;
 import com.imgtec.flow.client.core.Core;
 import com.imgtec.flow.client.users.Device;
 import com.imgtec.flow.client.users.Devices;
+import com.imgtec.flow.client.users.User;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -27,11 +31,16 @@ public class FlowConnection {
     private List<Device> deviceCache = new CopyOnWriteArrayList<>();
     private Device currentDevice;
 
+    private Handler asyncMessageHandler;
+    private Handler asyncResponseHandler;
+    private AsyncMessageListener asyncMessageListener;
+
 
     private FlowConnection(Context context) {
         flowInstance = Flow.getInstance();
         flowInstance.setAppContext(context);
         userFlowHandler = new FlowHandler();
+        initAsyncMessageHandlers();
     }
 
     public static FlowConnection getInstance(Context contex) {
@@ -43,6 +52,41 @@ public class FlowConnection {
             }
         }
         return instance;
+    }
+
+    private void initAsyncMessageHandlers() {
+        asyncMessageHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+
+                MessagingEvent messagingEvent = (MessagingEvent)msg.obj;
+                asyncMessageListener.onMessageRecieved(messagingEvent);
+            }
+        };
+
+        asyncResponseHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+
+                MessagingEvent messagingEvent = (MessagingEvent)msg.obj;
+                asyncMessageListener.onResponseRecieved(messagingEvent);
+            }
+        };
+    }
+
+    public void subscribeAsyncMessages() {
+        flowInstance.subscribe(getUserFlowHandler(), getUserAOR(),
+                MessagingEvent.MessagingEventCategory.FLOW_MESSAGING_EVENTCATEGORY_ASYNC_MESSAGE, "", 1200, asyncMessageHandler);
+
+        flowInstance.subscribe(getUserFlowHandler(), getUserAOR(),
+                MessagingEvent.MessagingEventCategory.FLOW_MESSAGING_EVENTCATEGORY_ASYNC_MESSAGE_RESPONSE, "", 1200, asyncResponseHandler);
+    }
+
+    public String getUserAOR() {
+        User user = Core.getDefaultClient().getLoggedInUser();
+        return user.getFlowMessagingAddress().getAddress();
     }
 
     public Flow getFlowInstance(){
@@ -133,6 +177,10 @@ public class FlowConnection {
 
     public Device getCurrentDevice() {
         return currentDevice;
+    }
+
+    public void setAsyncMessageListener(AsyncMessageListener asyncMessageListener) {
+        this.asyncMessageListener = asyncMessageListener;
     }
 
 

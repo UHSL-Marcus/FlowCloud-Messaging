@@ -2,7 +2,7 @@
 #define UTILS_H
 
 
-char getMacAddress();
+void getMacAddress(char *addr);
 
 
 

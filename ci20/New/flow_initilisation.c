@@ -235,8 +235,39 @@ static bool RegisterDevice(char *deviceType, char *macAddr, char *serialNum, cha
 	return false;
 }
 
+bool GetDeviceID(char *deviceID)
+{
+	FlowMemoryManager memoryManager = FlowMemoryManager_New();
 
-bool InitiliseFlow() {
+	if (memoryManager)
+	{
+		FlowDevice device = FlowClient_GetLoggedInDevice(memoryManager);
+		if (device)
+		{
+			FlowID temp;
+
+			temp = FlowDevice_GetDeviceID(device);
+			strcpy(deviceID, temp);
+			FlowMemoryManager_Free(&memoryManager);
+			return true;
+		}
+		else
+		{
+			printf("Failed to get logged in device.\n\r");
+			//ControllerLog(ControllerLogLevel_Error, ERROR_PREFIX "Failed to get logged in device.");
+		}
+		FlowMemoryManager_Free(&memoryManager);
+	}
+	else
+	{
+		printf("Failed to create memory manager.\n\r");
+		//ControllerLog(ControllerLogLevel_Error, ERROR_PREFIX "Failed to create memory manager.");
+	}
+	return false;
+}
+
+
+bool InitiliseFlow(GlobalData *gData) {
 	
 	bool result = false;
 	
@@ -249,8 +280,11 @@ bool InitiliseFlow() {
 		GetDeviceConfigDataFile(&deviceData);
 	
 		if (RegisterDevice(deviceData.deviceType, deviceData.deviceMACAddress, deviceData.deviceSerialNumber, DEVICE_SOFTWARE_VERSION, deviceData.deviceName, deviceData.deviceRegKey)) {
-			printf("Flow init success\n\r");
-			result = true;
+			if (GetDeviceID(gData->FlowID)) {
+				printf("Flow init success\n\r");
+			
+				result = true;
+			}
 		}
 		
 	}

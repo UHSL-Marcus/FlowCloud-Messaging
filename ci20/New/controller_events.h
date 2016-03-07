@@ -3,13 +3,16 @@
 
 #include <flow/flowcore.h>
 
-typedef enum
-{
+typedef enum {
 	ControllerEvent_ReceivedMessage,
 }ControllerEvent_Type;
 
-typedef struct
-{
+typedef struct {
+	char *recipient;
+	char *message;
+}OutgoingMessage;
+
+typedef struct {
 	ControllerEvent_Type type;
 	void *data;
 }ControllerEvent;

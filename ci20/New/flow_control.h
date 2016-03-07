@@ -10,12 +10,13 @@ typedef struct
 typedef enum
 {
 	FlowControlCmd_SendMessageToUser,
+	FlowControlCmd_SendMessageToDevice,
 }FlowControlCmd_Type;
 
 typedef struct
 {
 	FlowControlCmd_Type type;
-	char *data;
+	void *data;
 }FlowControlCmd;
 
 void FlowControlThread(FlowThread thread, void *context);

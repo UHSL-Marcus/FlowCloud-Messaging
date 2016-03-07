@@ -1,7 +1,8 @@
 xml bla bla
 <message>
-	<id>unique ID for tracking message sent status</id>
-	<sender>sender flowID - the flow messaging functions to retrive this automatically arn't working</sender>
-	<type>message type, could be a command, simple text message etc<type>
-	<body>the actual data of the message<body>	
+	<messageID>unique ID for tracking message sent status</messageID>
+	<senderID>sender flowID - the flow messaging functions to retrive this automatically arn't working</senderID>
+	<senderType>USER or DEVICE</senderType>
+	<type>message type, could be a command, simple text message etc</type>
+	<body>the actual data of the message</body>	
 </message>

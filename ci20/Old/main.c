@@ -6,7 +6,7 @@
 #include <flow/flowcore.h>
 #include <flow/flowmessaging.h>
 
-#define MAX_SIZE 250
+#define MAX_SIZE 500
 #define FLOW_SERVER_URL  "http://ws-uat.flowworld.com"
 #define FLOW_SERVER_KEY  "Ph3bY5kkU4P6vmtT"
 #define FLOW_SERVER_SECRET  "Sd1SVBfYtGfQvUCR"
@@ -64,7 +64,7 @@ bool ConnectToFlow()
 												/* Log in as device */
 												if (memoryManager)
 												{
-														if (FlowClient_LoginAsDevice("ci20", "00552288661156", "103155AX", NULL, "0.1", "ci20 MessageBoard", "RGAR3M5N9G"))
+														if (FlowClient_LoginAsDevice("ci20", "D03110FF7949", "12345", NULL, "0.1", "ci20-message", "S7HXEZLELE"))
 														{
 																result = true;
 																printf("Logged in as device.\n\r");
@@ -116,7 +116,7 @@ void messageReceivedCallBack(FlowMessagingMessage message)
         void *context;
         printf("\n\rReceived New Message\n\r");
         printf("\tMessage: %.*s\n\r",FlowMessagingMessage_GetContentLength(message), FlowMessagingMessage_GetContent(message));
-        printf("\tMessage Length: %d\n\r",FlowMessagingMessage_GetContentLength(message));
+        printf("\tMessage Length: %d\n\r",FlowMessagingMessage_GetContentLength(message));;
         stpcpy(response, "reply: ");
 		strcat(response, FlowMessagingMessage_GetContent(message));
 		printf("Response to send:\n\r");

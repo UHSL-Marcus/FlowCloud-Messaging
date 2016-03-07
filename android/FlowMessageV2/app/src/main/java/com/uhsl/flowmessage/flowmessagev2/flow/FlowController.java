@@ -153,4 +153,12 @@ public class FlowController {
                 new String[]{recipient}, message);
     }
 
+    public String getUserMessageingID() {
+        return flowConnection.getUserAOR();
+    }
+
+    public String getUserID() {
+        return flowConnection.getUserID();
+    }
+
 }

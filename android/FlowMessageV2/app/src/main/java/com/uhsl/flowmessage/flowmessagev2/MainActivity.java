@@ -20,6 +20,10 @@ import com.uhsl.flowmessage.flowmessagev2.flow.FlowController;
 import com.uhsl.flowmessage.flowmessagev2.utils.ActivityController;
 import com.uhsl.flowmessage.flowmessagev2.utils.AsyncRun;
 import com.uhsl.flowmessage.flowmessagev2.utils.BackgroundTask;
+import com.uhsl.flowmessage.flowmessagev2.utils.MessageBuilder;
+import com.uhsl.flowmessage.flowmessagev2.utils.MessageFormat;
+import com.uhsl.flowmessage.flowmessagev2.utils.MessageTypes;
+import com.uhsl.flowmessage.flowmessagev2.utils.SenderTypes;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +33,7 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity implements AsyncMessageListener {
 
     private FlowController flowController;
-    private List<String[]> messageList = new CopyOnWriteArrayList<>();
+    private List<String[]> messageList = new CopyOnWriteArrayList<>(); //[0]SenderID, [1]Body, [2]Status
     private ArrayAdapter<String[]> messageListAdapter;
     private ListView messagesListView;
     private Handler handler = new Handler();
@@ -46,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements AsyncMessageListe
 
         messageListAdapter =  new ThreeLineOptionalHiddenArrayAdapter(this, messageList, false, true, false);
         messagesListView = (ListView) findViewById(R.id.main_message_listView);
+        if (messagesListView.getAdapter() != null) {
+            System.out.println("set adapter: " + messagesListView.getAdapter().toString());
+        }
         messagesListView.setAdapter(messageListAdapter);
 
 
@@ -109,21 +116,27 @@ public class MainActivity extends AppCompatActivity implements AsyncMessageListe
 
     private void addMessage(final String sender, final String content, final String status) {
 
-        final String[] splitContent = content.split(Pattern.quote(";{MESSAGEID}"));
+        final MessageFormat message = MessageBuilder.parseMessage(content);
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                messageList.add(new String[]{sender + ": " + splitContent[0], splitContent[1], status});
-                messageListAdapter.notifyDataSetChanged();
-                messagesListView.smoothScrollToPosition(messageListAdapter.getCount()-1);
-            }
-        });
+        try {
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    messageList.add(new String[]{sender + ": " + message.body, message.messageID, status});
+                    messageListAdapter.notifyDataSetChanged();
+                    messagesListView.smoothScrollToPosition(messageListAdapter.getCount() - 1);
+                }
+            });
+        } catch (NullPointerException e) {
+            System.out.println("malformed message");
+        }
 
     }
 
     @Override
     public void onMessageRecieved(MessagingEvent messagingEvent) {
+        System.out.println("MESSAGE UIGJK");
         addMessage(messagingEvent.sender, messagingEvent.content, "");
     }
 
@@ -142,38 +155,57 @@ public class MainActivity extends AppCompatActivity implements AsyncMessageListe
             default: status = ""; break;
         }
 
-        String[] splitContent = response.content.split(Pattern.quote(";{MESSAGEID}"));
+        MessageFormat newMessage = MessageBuilder.parseMessage(response.content);
 
-        for (String[] message : messageList) {
-            if (message[1].equals(splitContent[1])) {
-                message[2] = "Status: " + status;
-                break;
+        try {
+
+            for (String[] message : messageList) {
+                if (message[1].equals(newMessage.messageID)) {
+                    message[2] = "Status: " + status;
+                    break;
+                }
             }
-        }
-        messageListAdapter.notifyDataSetChanged();
+            messageListAdapter.notifyDataSetChanged();
 
-        System.out.println("Recieved response: " + response.sender + " : " + response.content
-                + " : " + status);
+            System.out.println("Recieved response: " + response.sender + " : " + response.content
+                    + " : " + status);
+        } catch (NullPointerException e) {
+            System.out.println("malformed message: response callback");
+        }
     }
 
     public void doSendMessage(View view) {
-        final String msg = ((EditText) findViewById(R.id.main_input_message_editText)).getText().toString()
-                + ";{MESSAGEID}" + UUID.randomUUID().toString();
-        final String recipent = flowController.getConnectedDevice().getFlowMessagingAddress().getAddress();
 
         BackgroundTask.run(new AsyncRun() {
             @Override
             public void run() {
                 try {
-                    if (flowController.sendAsyncMessage(recipent, msg))
+                    MessageFormat newMessage = new MessageFormat(
+                            UUID.randomUUID().toString(),
+                            flowController.getUserID(), SenderTypes.USER, MessageTypes.TEXT_MESSAGE,
+                            ((EditText) findViewById(R.id.main_input_message_editText)).getText().toString());
+
+
+                    String msg = MessageBuilder.buildMessage(newMessage);
+                    String recipent = flowController.getConnectedDevice().getFlowMessagingAddress().getAddress();
+
+
+                    if (msg != null && flowController.sendAsyncMessage(recipent, msg))
                         addMessage("Me", msg, "Status: Sending...");
-                    else addMessage("Me", "Message Failed;{MESSAGEID}0", "Status: Done");
+                    else addMessage("Me", buildFailedMessage(), "Status: Done");
                 } catch (Exception e) {
                     System.out.println("Send message exception: " + e.toString() + " -> " + e.getMessage());
                 }
 
             }
         });
+    }
+
+
+    private String buildFailedMessage() {
+        MessageFormat newMessage = new MessageFormat("0", "0", "0", "0", "Message Failed");
+
+        return MessageBuilder.buildMessage(newMessage);
     }
 
 

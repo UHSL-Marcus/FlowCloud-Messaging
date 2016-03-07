@@ -19,6 +19,7 @@ import com.uhsl.flowmessage.flowmessagev2.utils.ActivityController;
 import com.uhsl.flowmessage.flowmessagev2.utils.AsyncCall;
 import com.uhsl.flowmessage.flowmessagev2.utils.BackgroundTask;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,16 +96,23 @@ public class ChooseDeviceActivity extends AppCompatActivity implements Backgroun
 
     public void onBackGroundTaskResult(final List<Device> result, int task) {
         if (task == 3) {
+
             try {
-                ArrayList<String[]> deviceList = new ArrayList<String[]>();
+                final ArrayList<String[]> deviceList = new ArrayList<String[]>();
                 for (Device device : result) {
                     deviceList.add(new String[]{device.getDeviceName(),
                             device.getFlowMessagingAddress().getAddress(), ""});
                 }
 
-                listView.setAdapter(new ThreeLineOptionalHiddenArrayAdapter(ChooseDeviceActivity.this, deviceList, false, false, true));
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listView.setAdapter(new ThreeLineOptionalHiddenArrayAdapter(ChooseDeviceActivity.this, deviceList, false, false, true));
+                    }
+                });
+
             } catch (Exception e) {
-                System.out.println("get device exception: " + e.toString());
+                System.out.println("get device exception: " + e.toString() + " -> " + e.getMessage());
             }
 
 
@@ -120,14 +128,23 @@ public class ChooseDeviceActivity extends AppCompatActivity implements Backgroun
                             selectedDevice = device;
                     }
 
-                    if (selectedDevice != null)
-                        connectBtn.setEnabled(true);
+                    if (selectedDevice != null) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                connectBtn.setEnabled(true);
+                            }
+                        });
+                    }
+
                 }
 
             });
 
         }
+
     }
+
 
     public void doConnectToDevice(View view) {
         if (selectedDevice != null){

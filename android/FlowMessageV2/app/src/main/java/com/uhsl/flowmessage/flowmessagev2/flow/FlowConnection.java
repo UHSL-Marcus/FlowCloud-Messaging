@@ -30,11 +30,11 @@ public class FlowConnection {
     private String password = "Sm@rtlab1234";
     private List<Device> deviceCache = new CopyOnWriteArrayList<>();
     private Device currentDevice;
+    private String userAOR;
 
     private Handler asyncMessageHandler;
     private Handler asyncResponseHandler;
     private AsyncMessageListener asyncMessageListener;
-
 
     private FlowConnection(Context context) {
         flowInstance = Flow.getInstance();
@@ -78,15 +78,22 @@ public class FlowConnection {
 
     public void subscribeAsyncMessages() {
         flowInstance.subscribe(getUserFlowHandler(), getUserAOR(),
-                MessagingEvent.MessagingEventCategory.FLOW_MESSAGING_EVENTCATEGORY_ASYNC_MESSAGE, "", 1200, asyncMessageHandler);
+                MessagingEvent.MessagingEventCategory.FLOW_MESSAGING_EVENTCATEGORY_ASYNC_MESSAGE, "",
+                1200, asyncMessageHandler);
 
         flowInstance.subscribe(getUserFlowHandler(), getUserAOR(),
-                MessagingEvent.MessagingEventCategory.FLOW_MESSAGING_EVENTCATEGORY_ASYNC_MESSAGE_RESPONSE, "", 1200, asyncResponseHandler);
+                MessagingEvent.MessagingEventCategory.FLOW_MESSAGING_EVENTCATEGORY_ASYNC_MESSAGE_RESPONSE, "",
+                1200, asyncResponseHandler);
     }
 
     public String getUserAOR() {
         User user = Core.getDefaultClient().getLoggedInUser();
         return user.getFlowMessagingAddress().getAddress();
+    }
+
+    public String getUserID() {
+        User user = Core.getDefaultClient().getLoggedInUser();
+        return user.getUserID().toString();
     }
 
     public Flow getFlowInstance(){

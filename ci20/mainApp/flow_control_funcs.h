@@ -10,4 +10,5 @@ typedef enum
 void RegisterCallbackForReceivedMsg(FlowMessaging_MessageReceivedCallBack callback);
 bool SendMessage(char *id, char *message, SendMessage_Type type);
 
+
 #endif /* FLOW_CONTROL_FUNCS_H */

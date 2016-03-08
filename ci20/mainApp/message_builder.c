@@ -8,10 +8,10 @@ bool TextMessage_Build(char *messageID, char *sender, char *body, char **output)
 
 	unsigned int xmlSize = 0;
 	
-	char xml[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-					"<message>"
+	char xml[] =	"<message>"
 						"<messageID>%s</messageID>"
 						"<senderID>%s</senderID>"
+						"<senderType>%s</senderType>"
 						"<type>%s</type>"
 						"<body>%s</body>"
 					"</message>";
@@ -19,6 +19,7 @@ bool TextMessage_Build(char *messageID, char *sender, char *body, char **output)
 	xmlSize = strlen(xml) +
 				strlen(messageID) +
 				strlen(sender) +
+				strlen(SENDER_TYPE_DEVICE) +
 				strlen(TEXT_MESSAGE) +
 				strlen(body);
 					
@@ -29,6 +30,7 @@ bool TextMessage_Build(char *messageID, char *sender, char *body, char **output)
 		snprintf(*output, xmlSize, xml,
 					messageID,
 					sender,
+					SENDER_TYPE_DEVICE,
 					TEXT_MESSAGE,
 					body);
 		return true;

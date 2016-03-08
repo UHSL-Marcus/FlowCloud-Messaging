@@ -36,10 +36,12 @@ int main(int argc, char *argv[])
 	
 	//initilise flow
 	if (InitiliseFlow(&gData)) {
+		
 	
 		// set the interthread message queues
 		gData.FlowCommandsQueue = FlowQueue_NewBlocking(QUEUE_SIZE);
 		gData.ControlEventsQueue = FlowQueue_NewBlocking(QUEUE_SIZE);
+		
 		
 		//start the threads
 		if (StartThreads()) {

@@ -26,7 +26,6 @@ static void FreeCmd(FlowControlCmd *cmd)
 
 static bool PostToControllerEventsQueue(char *data, char *sender, unsigned datasize, ControllerEvent_Type type) {
 	
-	printf("sender2: %s\n\r", sender);
 	bool success = false;
 	ControllerEvent *event = NULL;
 	ReceivedMessage *receivedMsg = NULL;
@@ -52,10 +51,8 @@ static bool PostToControllerEventsQueue(char *data, char *sender, unsigned datas
 			if (receivedMsg->data && receivedMsg->sender)
 			{
 				strncpy(receivedMsg->data, data, datasize);
-				receivedMsg->data[datasize] = '\0'; 
-				printf("sender3: %s\n\r", sender);				
+				receivedMsg->data[datasize] = '\0'; 			
 				strcpy(receivedMsg->sender, sender);
-				printf("sender4: %s\n\r", sender);
 				event->data = receivedMsg;
 				success = FlowQueue_Enqueue(*ControllerEventsQueue, event);
 			}
@@ -84,16 +81,24 @@ static bool PostToControllerEventsQueue(char *data, char *sender, unsigned datas
 	return success;
 }
 
-
-void MessageReceivedCallBack(FlowMessagingMessage message)
+void MessageReplyAsyncCallBack(void *context,bool result)
 {
+	printf("callback\n\r");
+    if(result)
+      printf("AsyncMessage Response success\n\r");
+    else
+      printf("AsyncMessage Resopnse failed\n\r");
+}
+
+
+void MessageReceivedCallBack(FlowMessagingMessage message) {
+	
 	char *data = NULL, *sender = NULL;
 	unsigned datasize= 0;
 
 	data = FlowMessagingMessage_GetContent(message);
 	datasize = FlowMessagingMessage_GetContentLength(message);
 	sender = FlowMessagingMessage_GetSenderUserID(message); // doesn't work...
-	printf("sender-2: %s\n\r", sender);
 
 	if (!sender)
 	{
@@ -102,7 +107,6 @@ void MessageReceivedCallBack(FlowMessagingMessage message)
 	}
 	if (!sender)
 	{
-		printf("sender-1: %s\n\r", sender);
 		// both have failed, just grab it from the XML in the message as a last resort
 		TreeNode xmlRoot = TreeNode_ParseXML((uint8_t*)data, strlen(data), true);
 		
@@ -113,20 +117,16 @@ void MessageReceivedCallBack(FlowMessagingMessage message)
 			if (xmlRoot) { 
 				if (strcmp(ROOT, TreeNode_GetName(xmlRoot)) == 0) {
 					if (GetNodeString(SENDER_ID_PATH, tempSender, xmlRoot)) {
-						printf("tempSender: %s\n\r", tempSender);
 						sender = (char*)malloc(size);
 						strcpy(sender, tempSender);
-						printf("sender0: %s\n\r", sender);
 					}
 				}
 			}
 		}
 		Tree_Delete(xmlRoot);
 	}
-	printf("sender0.5: %s\n\r", sender);
 	
 	if (sender) {
-		printf("sender1: %s\n\r", sender);
 		if (!PostToControllerEventsQueue(data, sender, datasize, ControllerEvent_ReceivedMessage)) {
 			//TODO
 			//ControllerLog(ControllerLogLevel_Error, ERROR_PREFIX "Posting message received event to controller thread failed");
@@ -141,7 +141,10 @@ void MessageReceivedCallBack(FlowMessagingMessage message)
 	//TODO:
 	//ControllerLog(ControllerLogLevel_Debug, DEBUG_PREFIX "Received message = %s",data);
 	printf("Received message = %s\n\r",data);
+	
 }
+
+
 
 void FlowControlThread(FlowThread thread, void *context) {
 	

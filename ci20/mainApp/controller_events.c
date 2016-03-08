@@ -81,7 +81,6 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 		
 	char *data = NULL;
 	
-	printf("controller sender2: %s\n\r", sender);
 	
 	if (GetNodeString(BODY_PATH, message, root) &&
 		GetNodeString(MESSAGE_ID_PATH, messageID, root) &&
@@ -91,7 +90,6 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 			strcat(reply, message);
 		
 			if (TextMessage_Build(messageID, gData->FlowID, reply, &data)) {
-				printf("controller sender3: %s\n\r", sender);
 				FlowControlCmd_Type cmd;
 				printf("cmd: %d\n\r", (int)cmd);
 				
@@ -108,6 +106,7 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 				}
 			}
 		
+		Flow_MemFree((void **)&data); // memory is allocated in TextMessage_Build	
 		
 	}
 	
@@ -115,12 +114,9 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 
 static void ParseMessage(char* data) {
 	ReceivedMessage *receivedMsg = (ReceivedMessage *) data;
-	
+
 	// Flow built-in XML parsing
-	TreeNode xmlRoot = TreeNode_ParseXML((uint8_t*)receivedMsg->data, strlen(receivedMsg->data), true);
-	
-	printf("controller sender1: %s\n\r", receivedMsg->sender);
-	
+	TreeNode xmlRoot = TreeNode_ParseXML((uint8_t*)receivedMsg->data, strlen(receivedMsg->data), true);	
 
 	if (xmlRoot) {
 		char nodeData[GetNodeStringSize(TYPE_PATH, xmlRoot)];
@@ -135,6 +131,7 @@ static void ParseMessage(char* data) {
 	}
 	printf("deleteing tree root\n\r");
 	Tree_Delete(xmlRoot);
+	xmlRoot = NULL;
 }
 
 void ControllerThread(FlowThread thread, void *context) {

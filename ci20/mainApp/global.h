@@ -28,7 +28,7 @@ typedef struct
 }GlobalData;
 
 
-void SetFlowCommandsQueue(FlowQueue fq);
+/*void SetFlowCommandsQueue(FlowQueue fq);
 
 void SetControlEventsQueue(FlowQueue fq);
 
@@ -50,6 +50,6 @@ FlowThread GetControllerThread();
 
 FlowService GetMessagaingService();
 
-void GetFlowID(char* buff);
+void GetFlowID(char* buff);*/
 
-#endif
+#endif /* GLOBAL_H */

@@ -4,6 +4,14 @@
 
 #include "message_format.h"
 
+/** Build a text messaage in the correct format
+    *
+    * @param *messageID ID for this message 
+	* @param *sender ID of the sender 
+	* @param *body The information to be sent
+	* @param **output Pointer to a buffer to hold the output
+	* @return bool success
+    */
 bool TextMessage_Build(char *messageID, char *sender, char *body, char **output) {
 
 	unsigned int xmlSize = 0;

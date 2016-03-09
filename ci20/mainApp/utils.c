@@ -8,6 +8,10 @@
 
 #include "utils.h"
 
+/** Get the MAC Address for this device
+    *
+    * @param *addr Buffer to hold the address 
+    */
 void getMacAddress(char *addr) {
 	int fd;
     struct ifreq ifr;

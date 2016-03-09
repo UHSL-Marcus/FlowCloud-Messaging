@@ -11,6 +11,10 @@
 
 static GlobalData gData = {};
 
+/** Start the controller and flow control threads
+    *
+	* @return bool success
+    */
 static bool StartThreads() {
 	
 	gData.ContollerThread = FlowThread_New("ControllerThread", DEFAULT_TASK_PRIORITY, MIN_STACK_SIZE, ControllerThread, &gData);
@@ -28,17 +32,21 @@ static bool StartThreads() {
 	return true;
 } 
 
+/** Program Entry point
+    *
+    * @param Standard main arguments
+	* @return int Exit number
+    */
 int main(int argc, char *argv[])
 {
 
 	int result = -1;
-	//GlobalData this = &gdata;
 	
 	//initilise flow
 	if (InitiliseFlow(&gData)) {
 		
 	
-		// set the interthread message queues
+		// set the inter-thread message queues
 		gData.FlowCommandsQueue = FlowQueue_NewBlocking(QUEUE_SIZE);
 		gData.ControlEventsQueue = FlowQueue_NewBlocking(QUEUE_SIZE);
 		
@@ -56,7 +64,7 @@ int main(int argc, char *argv[])
 			printf("Stopping...\n\r");
 		}
 		
-		
+		// free everything
 		FlowThread_Free(&gData.ContollerThread);
 		FlowThread_Free(&gData.FlowControlThread);
 		

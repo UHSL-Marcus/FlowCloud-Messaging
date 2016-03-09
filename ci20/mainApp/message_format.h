@@ -19,4 +19,4 @@
 #define SENDER_TYPE_USER "SenderType_User"
 #define SENDER_TYPE_DEVICE "SenderType_Device"
 
-#endif
+#endif /* MESSAGE_FORMAT_H */

@@ -15,6 +15,10 @@
 
 FlowQueue *ControllerEventsQueue;
 
+/** Free the memory allocated for this command
+    *
+    * @param *cmd Pointer to the command struct 
+    */
 static void FreeCmd(FlowControlCmd *cmd)
 {
 	if (cmd->data) {
@@ -24,13 +28,21 @@ static void FreeCmd(FlowControlCmd *cmd)
 	Flow_MemFree((void **)&cmd);
 }
 
+/** Create and post an event to the controller thread's queue.  
+    *
+    * @param *data String holding the event info
+    * @param *sender ID for the flow user or device from whom the event was recieved, can be null or empty 
+	* @param datasize Size of *data 
+	* @param type The type of event
+    * @return bool Success
+    */
 static bool PostToControllerEventsQueue(char *data, char *sender, unsigned datasize, ControllerEvent_Type type) {
 	
 	bool success = false;
 	ControllerEvent *event = NULL;
-	ReceivedMessage *receivedMsg = NULL;
+	ReceivedMessage *receivedMsg = NULL; // used if the event is a received message
 	
-	if (sender == NULL) { sender = ""; }
+	if (sender == NULL) { sender = ""; } // if there is no sender
 
 	//Allocated memory should be freed by the receiver
 	event = (ControllerEvent *)Flow_MemAlloc(sizeof(ControllerEvent));
@@ -39,6 +51,7 @@ static bool PostToControllerEventsQueue(char *data, char *sender, unsigned datas
 		
 		event->type = type;
 		
+		// for now we only have messages
 		receivedMsg = (ReceivedMessage *)Flow_MemAlloc(sizeof(ReceivedMessage));
 
 		if (receivedMsg)
@@ -51,7 +64,7 @@ static bool PostToControllerEventsQueue(char *data, char *sender, unsigned datas
 			if (receivedMsg->data && receivedMsg->sender)
 			{
 				strncpy(receivedMsg->data, data, datasize);
-				receivedMsg->data[datasize] = '\0'; 			
+				receivedMsg->data[datasize] = '\0'; 	// FlowMessagingMessage_GetContent() does not include a null terminator;	
 				strcpy(receivedMsg->sender, sender);
 				event->data = receivedMsg;
 				success = FlowQueue_Enqueue(*ControllerEventsQueue, event);
@@ -81,16 +94,11 @@ static bool PostToControllerEventsQueue(char *data, char *sender, unsigned datas
 	return success;
 }
 
-void MessageReplyAsyncCallBack(void *context,bool result)
-{
-	printf("callback\n\r");
-    if(result)
-      printf("AsyncMessage Response success\n\r");
-    else
-      printf("AsyncMessage Resopnse failed\n\r");
-}
 
-
+/** Message Recieved handler, called when flow receives a message
+    *
+    * @param message The recieved message
+    */
 void MessageReceivedCallBack(FlowMessagingMessage message) {
 	
 	char *data = NULL, *sender = NULL;
@@ -126,6 +134,8 @@ void MessageReceivedCallBack(FlowMessagingMessage message) {
 		Tree_Delete(xmlRoot);
 	}
 	
+	//TODO: add check that it is for us. 
+	
 	if (sender) {
 		if (!PostToControllerEventsQueue(data, sender, datasize, ControllerEvent_ReceivedMessage)) {
 			//TODO
@@ -136,7 +146,7 @@ void MessageReceivedCallBack(FlowMessagingMessage message) {
 		printf("no sender id detected.\n\r");
 	}
 	
-	free(sender);
+	free(sender); // no longer needed
 
 	//TODO:
 	//ControllerLog(ControllerLogLevel_Debug, DEBUG_PREFIX "Received message = %s",data);
@@ -145,7 +155,11 @@ void MessageReceivedCallBack(FlowMessagingMessage message) {
 }
 
 
-
+/** Main loop for this thread. Checks for queued commander from the controller thread and calls the appropiate action
+    *
+    * @param thread Identity of this thread (required param) 
+    * @param *context For extra info to be passed to the thread on creation (required param)
+    */
 void FlowControlThread(FlowThread thread, void *context) {
 	
 	printf("Flow Control\n\r");
@@ -158,9 +172,12 @@ void FlowControlThread(FlowThread thread, void *context) {
 	
 	FlowControlCmd *cmd = NULL;
 	
+	// loop
 	for (;;) {
+		// wait for command
 		cmd = FlowQueue_DequeueWaitFor(gData->FlowCommandsQueue,QUEUE_WAITING_TIME);
 		
+		// act
 		if (cmd != NULL) {
 		
 			switch(cmd->type) {

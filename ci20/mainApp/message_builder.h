@@ -3,4 +3,4 @@
 
 bool TextMessage_Build(char *messageID, char *sender, char *body, char **output);
 
-#endif
+#endif /* MESSAGE_BUILDER_H */

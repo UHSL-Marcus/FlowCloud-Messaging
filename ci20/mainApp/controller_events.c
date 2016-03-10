@@ -27,14 +27,17 @@ static void FreeEvent(ControllerEvent *event)
 	Flow_MemFree((void **)&event);
 }
 
+
 /** Create and post a command to the flow control thread's queue.  
     *
+	* Allocates memory for FlowControlCmd, receiver must free. 
+	*
     * @param *data String holding the command info
     * @param *recipient ID for the flow user or device if the command is to send a message, can be null or empty 
 	* @param type The type of flow command being queued
     * @return bool Success
     */
-static bool PostToFlowCommandsQueue(char *data, char *recipient, FlowControlCmd_Type type) {
+static bool PostToFlowCommandsQueue(void *data, FlowControlCmd_Type type) {
 	
 	FlowControlCmd *cmd = NULL;
 	
@@ -44,33 +47,11 @@ static bool PostToFlowCommandsQueue(char *data, char *recipient, FlowControlCmd_
 	if (cmd) {
 		cmd->type = type;
 		
-		switch (type) {
-			case FlowControlCmd_SendMessageToUser: {
-				OutgoingMessage *out = (OutgoingMessage *)Flow_MemAlloc(sizeof(OutgoingMessage));
-					
-				if (out) {
-					out->recipient = (char*)Flow_MemAlloc(strlen(recipient));
-					out->message = (char*)Flow_MemAlloc(strlen(data));
-					
-					strcpy(out->recipient, recipient);
-					strcpy(out->message, data);
-					cmd->data = out;
-					
-					if (FlowQueue_Enqueue(*FlowCommandsQueue, cmd)) 
-						return true;
-					else {
-						if (out->recipient)
-							Flow_MemFree((void **)&out->recipient);
-						if (out->message)
-							Flow_MemFree((void**)&out->message);
-						
-						Flow_MemFree((void**)&out);
-					}
-				}
-				break;
-			}
-		}
-		
+		cmd->data = data;
+			
+		if (FlowQueue_Enqueue(*FlowCommandsQueue, cmd)) 
+			return true;
+
 		// if we are here then the enqueue failed, release memory	
 		Flow_MemFree((void **)&cmd);
 
@@ -80,12 +61,44 @@ static bool PostToFlowCommandsQueue(char *data, char *recipient, FlowControlCmd_
 	
 }
 
+/** Fires off the heartbeat command to the flow control
+	*
+	* Allocates memeory for PublishEvent, reciever must free.
+    */
+static void doHeartBeat() {
+	
+	PublishEvent *event = Flow_MemAlloc(sizeof(PublishEvent));
+	
+	if (event) {
+		event->topic = EVENT_HEARTBEAT;
+		event->contentType = "text/plain";
+		event->expiry = 5;
+		
+		char *content = NULL;
+		
+		if (HeartbeatEvent_BuildMessage("placeholder", "2 mins", &content)) {
+			//kVSetting->value = (char*)Flow_MemAlloc(strlen(value)); // is this needed?
+			//strcpy(kVSetting->value, value);
+			event->content = content;
+			
+			if (!PostToFlowCommandsQueue(event, FlowControlCmd_Publish)) {
+				printf("heartbeat post failed.\n\r");
+				//if (kVSetting->value)
+					//Flow_MemFree((void **)&kVSetting->value);
+				
+				Flow_MemFree((void **)&event);
+			}
+		}
+	}
+}
+
 /** Handles an incomming text message from the flow control 
     *
+	* Allocates memeory for OutgoingMessage, reciever must free.
+	*
     * @param root Root node of the XML message format
     * @param *sender Sender ID
     */
-	
 static void MessageType_TextMessage(TreeNode root, char* sender) {
 	
 	// set each char buff to the correct size
@@ -104,7 +117,7 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 			char reply[] = "Reply->";
 			strcat(reply, message);
 		
-			if (TextMessage_Build(messageID, gData->FlowID, reply, &data)) {
+			if (TextMessage_BuildMessage(messageID, gData->FlowID, reply, &data)) {
 				FlowControlCmd_Type cmd;
 				
 				if (strcmp(senderType, SENDER_TYPE_USER) == 0)
@@ -112,11 +125,29 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 				if (strcmp(senderType, SENDER_TYPE_DEVICE) == 0)
 					cmd = FlowControlCmd_SendMessageToDevice;
 				
-			
-				if (!PostToFlowCommandsQueue(data, sender, cmd)) { 
-					printf("Posting to flow queue failed.\n\r");
-				
+				OutgoingMessage *out = (OutgoingMessage *)Flow_MemAlloc(sizeof(OutgoingMessage));
+					
+				if (out) {
+					out->recipient = (char*)Flow_MemAlloc(strlen(sender));
+					out->message = (char*)Flow_MemAlloc(strlen(data));
+					
+					strcpy(out->recipient, sender);
+					strcpy(out->message, data);
+					
+					if (!PostToFlowCommandsQueue(out, cmd)) { 
+						printf("Posting to flow queue failed.\n\r");
+						if (out->recipient)
+							Flow_MemFree((void **)&out->recipient);
+						if (out->message)
+							Flow_MemFree((void**)&out->message);
+						
+						Flow_MemFree((void**)&out);
+					}
+						
+					
 				}
+			
+				
 			}
 		
 		Flow_MemFree((void **)&data); // memory is allocated in TextMessage_Build	
@@ -179,7 +210,8 @@ void ControllerThread(FlowThread thread, void *context) {
 		
 			switch(event->type) {
 				case ControllerEvent_ReceivedMessage: {
-					ParseMessage(event->data);
+					//ParseMessage(event->data);
+					doHeartBeat();
 					FreeEvent(event);
 					break;
 				}

@@ -19,4 +19,6 @@
 #define SENDER_TYPE_USER "SenderType_User"
 #define SENDER_TYPE_DEVICE "SenderType_Device"
 
+#define EVENT_HEARTBEAT "Event_Heartbeat" 
+
 #endif /* MESSAGE_FORMAT_H */

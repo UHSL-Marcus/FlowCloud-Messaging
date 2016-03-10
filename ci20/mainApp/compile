@@ -1,0 +1,1 @@
+gcc -g controller_events.c flow_control.c flow_control_funcs.c flow_initilisation.c main.c message_builder.c utils.c xml_funcs.c -o flow_messaging -lflowcore -lflowmessaging

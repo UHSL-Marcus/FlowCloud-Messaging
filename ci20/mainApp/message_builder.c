@@ -12,7 +12,7 @@
 	* @param **output Pointer to a buffer to hold the output
 	* @return bool success
     */
-bool TextMessage_Build(char *messageID, char *sender, char *body, char **output) {
+bool TextMessage_BuildMessage(char *messageID, char *sender, char *body, char **output) {
 
 	unsigned int xmlSize = 0;
 	
@@ -41,6 +41,41 @@ bool TextMessage_Build(char *messageID, char *sender, char *body, char **output)
 					SENDER_TYPE_DEVICE,
 					TEXT_MESSAGE,
 					body);
+		return true;
+	}
+	else {
+		return false;
+	}
+
+}
+
+/** Builds the heartbeat event message
+    *
+    * @param *timestamp heartbeat timestamp (UTC)
+	* @param *uptime heartbeat 
+	* @param **output Pointer to a buffer to hold the output
+	* @return bool success
+    */
+bool HeartbeatEvent_BuildMessage(char *timestamp, char *uptime, char **output) {
+
+	unsigned int xmlSize = 0;
+	
+	char xml[] =	"<heartbeat>"
+						"<timestamp>%s</timestamp>"
+						"<uptime>%s</uptime>"
+					"</heartbeat>";
+					
+	xmlSize = strlen(xml) +
+				strlen(timestamp) +
+				strlen(uptime);
+					
+	*output = (char *)Flow_MemAlloc(xmlSize);
+	
+	
+	if (*output) {
+		snprintf(*output, xmlSize, xml,
+					timestamp,
+					uptime);
 		return true;
 	}
 	else {

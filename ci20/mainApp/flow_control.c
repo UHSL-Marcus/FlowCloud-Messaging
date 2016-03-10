@@ -187,8 +187,20 @@ void FlowControlThread(FlowThread thread, void *context) {
 					if (out) {
 						if (SendMessage(out->recipient, out->message, SendMessage_ToUser)) 
 							printf("message sent\n\r");
+						
+						//Flow_MemFree(void**)&out); // maybe already done above
 					}
 					FreeCmd(cmd);
+					break;
+				}
+				case FlowControlCmd_Publish: {
+					PublishEvent *publish = (PublishEvent *) cmd->data;
+					
+					if (publish) {
+						if (FlowMessaging_Publish(publish->topic, publish->contentType, publish->content, strlen(publish->content), publish->expiry)) 
+							printf("event published\n\r");
+					}
+					FreeCmd(cmd);						
 					break;
 				}
 			}

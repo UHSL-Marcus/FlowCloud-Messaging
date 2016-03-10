@@ -3,6 +3,9 @@
 
 #include <flow/flowcore.h>
 
+#define HEARTBEAT_TIMESTAMP "timestamp"
+#define HEARTBEAT_UPTIME "uptime"
+
 typedef enum {
 	ControllerEvent_ReceivedMessage,
 }ControllerEvent_Type;
@@ -11,6 +14,18 @@ typedef struct {
 	char *recipient;
 	char *message;
 }OutgoingMessage;
+
+typedef struct {
+	char *key;
+	char *value;
+}KeyValueSetting;
+
+typedef struct {
+	char *topic;
+	char *contentType;
+	char *content;
+	uint expiry;
+}PublishEvent;
 
 typedef struct {
 	ControllerEvent_Type type;

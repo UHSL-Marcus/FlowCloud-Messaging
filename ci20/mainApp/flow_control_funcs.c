@@ -74,6 +74,32 @@ bool SendMessage(char *id, char *message, SendMessage_Type type)
 }
 
 
+bool SetKeyValueSetting(char* key, char* value) {
+	
+	FlowMemoryManager memoryManager = FlowMemoryManager_New();
+	
+	if (memoryManager) {
+		FlowDevice device = FlowClient_GetLoggedInDevice(memoryManager);
+		
+		if (device) {
+			FlowSettings settings = FlowDevice_RetrieveSettings(device, 0);
+			
+			if (settings) {
+				FlowSettings_SaveSetting(memoryManager, settings, key, value);
+				return true;
+				
+			}else printf("failed to retrieve settings.\n\r");
+			
+		} else printf("failed to get logged in device.\n\r");
+		
+		FlowMemoryManager_Free(&memoryManager);
+		
+	} else printf("failed to create memory manager.\n\r");
+	
+	return false;
+}
+
+
 
 
 

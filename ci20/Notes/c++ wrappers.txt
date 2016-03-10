@@ -1,0 +1,4 @@
+Flow command handler -> c++ class that wraps listening for incomming messages. Map message types to callback functions in the main loop
+
+Async Flow outgoing handler -> c++ class that wraps outgoing flow activities (Sending messages, getting/setting key value, making queries). Option to wait for reply or set callback. 
+

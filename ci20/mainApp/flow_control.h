@@ -11,6 +11,8 @@ typedef enum
 {
 	FlowControlCmd_SendMessageToUser,
 	FlowControlCmd_SendMessageToDevice,
+	FlowControlCmd_AddKeyValueSetting,
+	FlowControlCmd_Publish,
 }FlowControlCmd_Type;
 
 typedef struct

@@ -3,6 +3,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <flow/flowmessaging.h>
+
 #include "controller_events.h"
 #include "flow_control.h"
 #include "global.h"
@@ -63,32 +65,43 @@ static bool PostToFlowCommandsQueue(void *data, FlowControlCmd_Type type) {
 
 /** Fires off the heartbeat command to the flow control
 	*
-	* Allocates memeory for PublishEvent, reciever must free.
+	* Allocates memeory for EventToPublish, reciever must free.
+	* @param taskID indentify the currently scheduled task (if multiple are handled by this callback function)
+	* @param *context any additional data passed to the callback function
     */
-static void doHeartBeat() {
+void doHeartBeat(FlowTaskID taskID, void *context) {
+	printf("doing heartbeat\r\n");
 	
-	PublishEvent *event = Flow_MemAlloc(sizeof(PublishEvent));
+	EventToPublish *event = Flow_MemAlloc(sizeof(EventToPublish));
 	
 	if (event) {
-		event->topic = EVENT_HEARTBEAT;
+		event->topic = FLOW_MESSAGING_TOPIC_DEVICE_PRESENCE;
 		event->contentType = "text/plain";
-		event->expiry = 5;
+		event->expirySeconds = 5;
 		
 		char *content = NULL;
 		
-		if (HeartbeatEvent_BuildMessage("placeholder", "2 mins", &content)) {
-			//kVSetting->value = (char*)Flow_MemAlloc(strlen(value)); // is this needed?
-			//strcpy(kVSetting->value, value);
-			event->content = content;
+		FlowMemoryManager memoryManager = FlowMemoryManager_New();
+		char* random = FlowResourceCreatedResponse_GetID(FlowAPI_GenerateUUID(FlowClient_GetAPI(memoryManager)));
+		
+		printf("Random is: %s.\n\r", random);
+		
+		if (HeartbeatEvent_BuildMessage(random, "2 mins", &content)) {
+			event->content = (char*)Flow_MemAlloc(strlen(content)); 
+			strcpy(event->content, content);
+			//event->content = content;
 			
 			if (!PostToFlowCommandsQueue(event, FlowControlCmd_Publish)) {
 				printf("heartbeat post failed.\n\r");
-				//if (kVSetting->value)
-					//Flow_MemFree((void **)&kVSetting->value);
+				if (event->content)
+					Flow_MemFree((void **)&event->content);
 				
 				Flow_MemFree((void **)&event);
 			}
+			
 		}
+		FlowMemoryManager_Free(&memoryManager);
+		Flow_MemFree((void **)&content); // memory is allocated in HeartbeatEvent_BuildMessage
 	}
 }
 
@@ -150,7 +163,7 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 				
 			}
 		
-		Flow_MemFree((void **)&data); // memory is allocated in TextMessage_Build	
+			Flow_MemFree((void **)&data); // memory is allocated in TextMessage_Build	
 		
 	}
 	
@@ -194,6 +207,9 @@ void ControllerThread(FlowThread thread, void *context) {
 	
 	printf("Controller Thread\n\r");
 	
+	// set heartbeat schedule
+	FlowScheduler_ScheduleTask(doHeartBeat, NULL, 5, true);
+	
 	gData = context;	
 	
 	FlowCommandsQueue = &gData->FlowCommandsQueue; //pull the queue pointer from the global struct
@@ -210,8 +226,8 @@ void ControllerThread(FlowThread thread, void *context) {
 		
 			switch(event->type) {
 				case ControllerEvent_ReceivedMessage: {
-					//ParseMessage(event->data);
-					doHeartBeat();
+					ParseMessage(event->data);
+					//doHeartBeat();
 					FreeEvent(event);
 					break;
 				}

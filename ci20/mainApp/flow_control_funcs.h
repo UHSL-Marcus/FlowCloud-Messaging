@@ -9,6 +9,7 @@ typedef enum
 
 void RegisterCallbackForReceivedMsg(FlowMessaging_MessageReceivedCallBack callback);
 bool SendMessage(char *id, char *message, SendMessage_Type type);
+bool PublishEvent(char *topic, char *contentType, char *content, int expireInSeconds);
 bool SetKeyValueSetting(char* key, char* value);
 
 

@@ -24,8 +24,8 @@ typedef struct {
 	char *topic;
 	char *contentType;
 	char *content;
-	uint expiry;
-}PublishEvent;
+	uint expirySeconds;
+}EventToPublish;
 
 typedef struct {
 	ControllerEvent_Type type;

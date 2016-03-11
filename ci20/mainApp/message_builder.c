@@ -5,7 +5,9 @@
 #include "message_format.h"
 
 /** Build a text messaage in the correct format
-    *
+	*
+    * Allocates memory for *output, caller must free
+	*
     * @param *messageID ID for this message 
 	* @param *sender ID of the sender 
 	* @param *body The information to be sent
@@ -50,7 +52,9 @@ bool TextMessage_BuildMessage(char *messageID, char *sender, char *body, char **
 }
 
 /** Builds the heartbeat event message
-    *
+	*
+    * Allocates memory for *output, caller must free
+	*
     * @param *timestamp heartbeat timestamp (UTC)
 	* @param *uptime heartbeat 
 	* @param **output Pointer to a buffer to hold the output

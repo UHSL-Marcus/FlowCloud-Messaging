@@ -154,7 +154,6 @@ void MessageReceivedCallBack(FlowMessagingMessage message) {
 	
 }
 
-
 /** Main loop for this thread. Checks for queued commander from the controller thread and calls the appropiate action
     *
     * @param thread Identity of this thread (required param) 
@@ -169,6 +168,8 @@ void FlowControlThread(FlowThread thread, void *context) {
 	ControllerEventsQueue = &gData->ControlEventsQueue; //pull the queue pointer from the global context
 	
 	RegisterCallbackForReceivedMsg(MessageReceivedCallBack);
+	
+	FlowMessaging_Subscribe(FLOW_MESSAGING_TOPIC_DEVICE_PRESENCE, gData->FlowID, NULL, mySubscribeEventCallback);
 	
 	FlowControlCmd *cmd = NULL;
 	
@@ -194,11 +195,16 @@ void FlowControlThread(FlowThread thread, void *context) {
 					break;
 				}
 				case FlowControlCmd_Publish: {
-					PublishEvent *publish = (PublishEvent *) cmd->data;
+					EventToPublish *publish = (EventToPublish *) cmd->data;
 					
 					if (publish) {
-						if (FlowMessaging_Publish(publish->topic, publish->contentType, publish->content, strlen(publish->content), publish->expiry)) 
+						printf("Topic: %s\n\r", publish->topic);
+						printf("Content: %s\n\r", publish->content);
+						printf("Content len: %d\n\r", strlen(publish->content));
+						printf("My ID: %s\n\r", gData->FlowID);
+						if (PublishEvent(publish->topic, publish->contentType, publish->content, publish->expirySeconds)) 
 							printf("event published\n\r");
+							
 					}
 					FreeCmd(cmd);						
 					break;

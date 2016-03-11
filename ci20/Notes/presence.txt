@@ -2,4 +2,3 @@
 
 boards update presence every 5 seconds
 
-when app publishes presence or publishes (seaching) each board fires off a presence... 

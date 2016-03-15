@@ -35,7 +35,6 @@ bool TextMessage_BuildMessage(char *messageID, char *sender, char *body, char **
 					
 	*output = (char *)Flow_MemAlloc(xmlSize);
 	
-	
 	if (*output) {
 		snprintf(*output, xmlSize, xml,
 					messageID,
@@ -46,10 +45,49 @@ bool TextMessage_BuildMessage(char *messageID, char *sender, char *body, char **
 		return true;
 	}
 	else {
+		Flow_MemFree((void**)&*output);
 		return false;
 	}
 
 }
+
+/** Builds a generic event message
+	*
+    * Allocates memory for *output, caller must free
+	*
+    * @param *type The event type
+	* @param *data Custom data for the event 
+	* @param **output Pointer to a buffer to hold the output
+	* @return bool success
+    */
+
+bool Event_BuildMessage(char *type, char *data, char**output) {
+	unsigned int xmlSize = 0;
+	
+	char xml[] =	"<event>"
+						"<type>%s</type>"
+						"<body>%s</body>"
+					"</event>";
+					
+	xmlSize = strlen(xml) +
+				strlen(type) +
+				strlen(data);
+					
+	*output = (char *)Flow_MemAlloc(xmlSize);
+	
+	if (*output) {
+		snprintf(*output, xmlSize, xml,
+					type,
+					data);
+		return true;
+	}
+	else {
+		Flow_MemFree((void**)&*output);
+		return false;
+	}
+
+}
+
 
 /** Builds the heartbeat event message
 	*
@@ -61,29 +99,40 @@ bool TextMessage_BuildMessage(char *messageID, char *sender, char *body, char **
 	* @return bool success
     */
 bool HeartbeatEvent_BuildMessage(char *timestamp, char *uptime, char **output) {
+	
+	bool success = false;
 
 	unsigned int xmlSize = 0;
 	
-	char xml[] =	"<heartbeat>"
-						"<timestamp>%s</timestamp>"
-						"<uptime>%s</uptime>"
-					"</heartbeat>";
+	char xml[] =	"<timestamp>%s</timestamp>"
+					"<uptime>%s</uptime>";
+					
 					
 	xmlSize = strlen(xml) +
 				strlen(timestamp) +
 				strlen(uptime);
+				
+	char data[xmlSize];
+	snprintf(data, xmlSize, xml, timestamp, uptime);
+	
+	char *event = NULL;
+	
+	if (Event_BuildMessage(EVENT_HEARTBEAT, data, &event)) {
+		
 					
-	*output = (char *)Flow_MemAlloc(xmlSize);
-	
-	
-	if (*output) {
-		snprintf(*output, xmlSize, xml,
-					timestamp,
-					uptime);
-		return true;
+		*output = (char *)Flow_MemAlloc(strlen(event));
+
+		if (*output) {
+			strcpy(*output, event);
+			success = true;
+		}
+		else {
+			Flow_MemFree((void**)&*output);
+		}
+		
+		Flow_MemFree((void**)&event);
 	}
-	else {
-		return false;
-	}
+	
+	return success;
 
 }

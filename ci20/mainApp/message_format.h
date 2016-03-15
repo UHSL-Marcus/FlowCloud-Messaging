@@ -16,6 +16,7 @@
 
 #define TEXT_MESSAGE "FlowMessageType_TextMessage"
 
+
 #define SENDER_TYPE_USER "SenderType_User"
 #define SENDER_TYPE_DEVICE "SenderType_Device"
 

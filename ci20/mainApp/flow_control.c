@@ -169,15 +169,13 @@ void FlowControlThread(FlowThread thread, void *context) {
 	
 	RegisterCallbackForReceivedMsg(MessageReceivedCallBack);
 	
-	FlowMessaging_Subscribe(FLOW_MESSAGING_TOPIC_DEVICE_PRESENCE, gData->FlowID, NULL, mySubscribeEventCallback);
-	
 	FlowControlCmd *cmd = NULL;
 	
 	// loop
 	for (;;) {
 		// wait for command
 		cmd = FlowQueue_DequeueWaitFor(gData->FlowCommandsQueue,QUEUE_WAITING_TIME);
-		
+		printf("****Flow Command*****\n\r");
 		// act
 		if (cmd != NULL) {
 		
@@ -189,7 +187,7 @@ void FlowControlThread(FlowThread thread, void *context) {
 						if (SendMessage(out->recipient, out->message, SendMessage_ToUser)) 
 							printf("message sent\n\r");
 						
-						//Flow_MemFree(void**)&out); // maybe already done above
+						//Flow_MemFree((void**)&out); // maybe already done above
 					}
 					FreeCmd(cmd);
 					break;
@@ -204,6 +202,8 @@ void FlowControlThread(FlowThread thread, void *context) {
 						printf("My ID: %s\n\r", gData->FlowID);
 						if (PublishEvent(publish->topic, publish->contentType, publish->content, publish->expirySeconds)) 
 							printf("event published\n\r");
+						
+						Flow_MemFree((void**)&publish); // maybe already done above
 							
 					}
 					FreeCmd(cmd);						

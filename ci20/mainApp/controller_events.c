@@ -66,6 +66,7 @@ static bool PostToFlowCommandsQueue(void *data, FlowControlCmd_Type type) {
 /** Fires off the heartbeat command to the flow control
 	*
 	* Allocates memeory for EventToPublish, reciever must free.
+	*
 	* @param taskID indentify the currently scheduled task (if multiple are handled by this callback function)
 	* @param *context any additional data passed to the callback function
     */
@@ -81,12 +82,7 @@ void doHeartBeat(FlowTaskID taskID, void *context) {
 		
 		char *content = NULL;
 		
-		FlowMemoryManager memoryManager = FlowMemoryManager_New();
-		char* random = FlowResourceCreatedResponse_GetID(FlowAPI_GenerateUUID(FlowClient_GetAPI(memoryManager)));
-		
-		printf("Random is: %s.\n\r", random);
-		
-		if (HeartbeatEvent_BuildMessage(random, "2 mins", &content)) {
+		if (HeartbeatEvent_BuildMessage("placeholder", "2 mins", &content)) {
 			event->content = (char*)Flow_MemAlloc(strlen(content)); 
 			strcpy(event->content, content);
 			//event->content = content;
@@ -99,9 +95,11 @@ void doHeartBeat(FlowTaskID taskID, void *context) {
 				Flow_MemFree((void **)&event);
 			}
 			
+			Flow_MemFree((void **)&content); // memory is allocated in HeartbeatEvent_BuildMessage
+			
 		}
-		FlowMemoryManager_Free(&memoryManager);
-		Flow_MemFree((void **)&content); // memory is allocated in HeartbeatEvent_BuildMessage
+		
+		
 	}
 }
 
@@ -160,10 +158,10 @@ static void MessageType_TextMessage(TreeNode root, char* sender) {
 					
 				}
 			
-				
+				//Flow_MemFree((void **)&data); // memory is allocated in TextMessage_Build	
 			}
 		
-			Flow_MemFree((void **)&data); // memory is allocated in TextMessage_Build	
+			
 		
 	}
 	
@@ -227,7 +225,6 @@ void ControllerThread(FlowThread thread, void *context) {
 			switch(event->type) {
 				case ControllerEvent_ReceivedMessage: {
 					ParseMessage(event->data);
-					//doHeartBeat();
 					FreeEvent(event);
 					break;
 				}

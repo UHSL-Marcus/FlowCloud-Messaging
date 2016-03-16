@@ -22,6 +22,7 @@ typedef struct
 	
 	FlowThread ContollerThread;
 	FlowThread FlowControlThread;
+	FlowThread HeartbeatThread;
 
 	FlowQueue FlowCommandsQueue;				
 	FlowQueue ControlEventsQueue;			

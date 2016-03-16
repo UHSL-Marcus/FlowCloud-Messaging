@@ -19,6 +19,7 @@ static bool StartThreads() {
 	
 	gData.ContollerThread = FlowThread_New("ControllerThread", DEFAULT_TASK_PRIORITY, MIN_STACK_SIZE, ControllerThread, &gData);
 	gData.FlowControlThread = FlowThread_New("FlowControlThread", DEFAULT_TASK_PRIORITY, MIN_STACK_SIZE, FlowControlThread, &gData);
+	gData.HeartbeatThread = FlowThread_New("HeartbeatThread", DEFAULT_TASK_PRIORITY, MIN_STACK_SIZE, HeartbeatThread, &gData);
 	
 	if (&gData.ContollerThread == NULL) {
 		printf("ControllerThread failed.\n\r");
@@ -26,6 +27,10 @@ static bool StartThreads() {
 	}
 	if (&gData.FlowControlThread == NULL) {
 		printf("FlowControlThread failed.\n\r");
+		return false;
+	}
+	if (&gData.HeartbeatThread == NULL) {
+		printf("HeartbeatThread failed.\n\r");
 		return false;
 	}
 	
@@ -67,6 +72,7 @@ int main(int argc, char *argv[])
 		// free everything
 		FlowThread_Free(&gData.ContollerThread);
 		FlowThread_Free(&gData.FlowControlThread);
+		FlowThread_Free(&gData.HeartbeatThread);
 		
 		FlowQueue_Free(&gData.FlowCommandsQueue);
 		FlowQueue_Free(&gData.ControlEventsQueue);

@@ -186,8 +186,6 @@ void FlowControlThread(FlowThread thread, void *context) {
 					if (out) {
 						if (SendMessage(out->recipient, out->message, SendMessage_ToUser)) 
 							printf("message sent\n\r");
-						
-						//Flow_MemFree((void**)&out); // maybe already done above
 					}
 					FreeCmd(cmd);
 					break;
@@ -201,12 +199,22 @@ void FlowControlThread(FlowThread thread, void *context) {
 						printf("Content len: %d\n\r", strlen(publish->content));
 						printf("My ID: %s\n\r", gData->FlowID);
 						if (PublishEvent(publish->topic, publish->contentType, publish->content, publish->expirySeconds)) 
-							printf("event published\n\r");
-						
-						Flow_MemFree((void**)&publish); // maybe already done above
-							
+							printf("event published\n\r");	
 					}
 					FreeCmd(cmd);						
+					break;
+				}
+				case FlowControlCmd_AddKeyValueSetting: {
+					KeyValueSetting *KVS = (KeyValueSetting *) cmd->data;
+					
+					if (KVS) {
+						printf("Key: %s\n\r", KVS->key);
+						printf("Value: %s\n\r", KVS->value);
+						
+						if (SetKeyValueSetting(KVS->key, KVS->value))
+							printf("Setting Added\n\r");
+					}
+					FreeCmd(cmd);		
 					break;
 				}
 			}

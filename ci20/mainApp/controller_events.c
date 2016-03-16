@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include <errno.h>
 
 #include <flow/flowmessaging.h>
@@ -65,7 +66,7 @@ static bool PostToFlowCommandsQueue(void *data, FlowControlCmd_Type type) {
 
 /** Fires off the heartbeat command to the flow control
 	*
-	* Allocates memeory for EventToPublish, reciever must free.
+	* Allocates memeory for KeyValueSetting, reciever must free.
 	*
 	* @param taskID indentify the currently scheduled task (if multiple are handled by this callback function)
 	* @param *context any additional data passed to the callback function
@@ -73,34 +74,51 @@ static bool PostToFlowCommandsQueue(void *data, FlowControlCmd_Type type) {
 void doHeartBeat(FlowTaskID taskID, void *context) {
 	printf("doing heartbeat\r\n");
 	
-	EventToPublish *event = Flow_MemAlloc(sizeof(EventToPublish));
+	KeyValueSetting *KVS = Flow_MemAlloc(sizeof(KeyValueSetting));
 	
-	if (event) {
-		event->topic = FLOW_MESSAGING_TOPIC_DEVICE_PRESENCE;
-		event->contentType = "text/plain";
-		event->expirySeconds = 5;
+	if (KVS) {
+		KVS->key = KVS_HEARTBEAT;
 		
-		char *content = NULL;
+		char *value = NULL;
+		FlowMemoryManager memoryManager = FlowMemoryManager_New();
 		
-		if (HeartbeatEvent_BuildMessage("placeholder", "2 mins", &content)) {
-			event->content = (char*)Flow_MemAlloc(strlen(content)); 
-			strcpy(event->content, content);
-			//event->content = content;
+		if (memoryManager) {
+			FlowTime time = FlowAPI_RetrieveTime(FlowClient_GetAPI(memoryManager));
+			FlowDatetime currentTime = (FlowDatetime) FlowTime_GetCurrentUtcTime(time);
 			
-			if (!PostToFlowCommandsQueue(event, FlowControlCmd_Publish)) {
-				printf("heartbeat post failed.\n\r");
-				if (event->content)
-					Flow_MemFree((void **)&event->content);
+			char *currentTimeString = ctime(&currentTime);
+			currentTimeString[strlen(currentTimeString)-1] = '\0';
+			
+			if (HeartbeatKeyValueSetting_BuildData(currentTimeString, "2", &value)) {
+				KVS->value = (char*)Flow_MemAlloc(strlen(value)); 
+				strcpy(KVS->value, value);
 				
-				Flow_MemFree((void **)&event);
+				if (!PostToFlowCommandsQueue(KVS, FlowControlCmd_AddKeyValueSetting)) {
+					printf("heartbeat post failed.\n\r");
+					if (KVS->value)
+						Flow_MemFree((void **)&KVS->value);
+					
+					Flow_MemFree((void **)&KVS);
+				}
+				
+				Flow_MemFree((void **)&value); // memory is allocated in HeartbeatEvent_BuildMessage
+				
 			}
-			
-			Flow_MemFree((void **)&content); // memory is allocated in HeartbeatEvent_BuildMessage
-			
+			FlowMemoryManager_Free(&memoryManager);
 		}
 		
 		
 	}
+}
+
+void HeartbeatThread(FlowThread thread, void *context) {
+	
+	printf("HeartbeatThread.\n\r");
+	
+	// set heartbeat schedule
+	FlowScheduler_ScheduleTask(doHeartBeat, NULL, 4, true);
+	
+	for(;;){};
 }
 
 /** Handles an incomming text message from the flow control 
@@ -204,9 +222,6 @@ static void ParseMessage(char* data) {
 void ControllerThread(FlowThread thread, void *context) {
 	
 	printf("Controller Thread\n\r");
-	
-	// set heartbeat schedule
-	FlowScheduler_ScheduleTask(doHeartBeat, NULL, 5, true);
 	
 	gData = context;	
 	

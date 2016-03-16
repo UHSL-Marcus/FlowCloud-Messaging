@@ -84,6 +84,7 @@ bool PublishEvent(char *topic, char *contentType, char *content, int expireInSec
 	
 	FlowMemoryManager memoryManager = FlowMemoryManager_New();
 	
+	printf("Content (send): \"%s\"\n\r", content);
 	if (memoryManager) {
 		// got to use FlowPublishEvent as FlowMessaging_Publish() doesn't work
 		FlowPublishEvent event = FlowPublishEvent_New(memoryManager);
@@ -98,6 +99,8 @@ bool PublishEvent(char *topic, char *contentType, char *content, int expireInSec
 		FlowPublishEvent_SetCreateTime(event, currentTime);
 		FlowPublishEvent_SetExpiryTime(event, expiryTime);
 		
+		printf("Content (send): \"%s\"\n\r", FlowPublishEvent_GetContent (event));
+		
 		// do it this way as storing the service in the global struct causes segmentation faults when we try to access it.
 		FlowDevice device = FlowClient_GetLoggedInDevice(memoryManager);
 		if (device) {
@@ -108,6 +111,7 @@ bool PublishEvent(char *topic, char *contentType, char *content, int expireInSec
 			
 				if (serviceSettings) {
 					if (FlowService_PublishEvent(service, event)) {
+						printf("Content (send): \"%s\"\n\r", FlowPublishEvent_GetContent (event));
 						success = true;
 					} else {
 						printf("failed to publish event. Code: %d\n\r", FlowThread_GetLastError());

@@ -22,4 +22,6 @@
 
 #define EVENT_HEARTBEAT "Event_Heartbeat" 
 
+#define KVS_HEARTBEAT "Setting_Heartbeat"
+
 #endif /* MESSAGE_FORMAT_H */

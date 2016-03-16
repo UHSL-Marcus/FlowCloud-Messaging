@@ -34,6 +34,7 @@ typedef struct {
 
 
 void ControllerThread(FlowThread thread, void *context);
+void HeartbeatThread(FlowThread thread, void *context);
 
 
 

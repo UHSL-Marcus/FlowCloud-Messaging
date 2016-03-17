@@ -6,6 +6,8 @@
 #define HEARTBEAT_TIMESTAMP "timestamp"
 #define HEARTBEAT_UPTIME "uptime"
 
+#define HEARTBEAT_TIMER (20)
+
 typedef enum {
 	ControllerEvent_ReceivedMessage,
 }ControllerEvent_Type;

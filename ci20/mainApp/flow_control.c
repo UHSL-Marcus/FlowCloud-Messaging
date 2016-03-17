@@ -194,10 +194,6 @@ void FlowControlThread(FlowThread thread, void *context) {
 					EventToPublish *publish = (EventToPublish *) cmd->data;
 					
 					if (publish) {
-						printf("Topic: %s\n\r", publish->topic);
-						printf("Content: %s\n\r", publish->content);
-						printf("Content len: %d\n\r", strlen(publish->content));
-						printf("My ID: %s\n\r", gData->FlowID);
 						if (PublishEvent(publish->topic, publish->contentType, publish->content, publish->expirySeconds)) 
 							printf("event published\n\r");	
 					}
@@ -208,9 +204,6 @@ void FlowControlThread(FlowThread thread, void *context) {
 					KeyValueSetting *KVS = (KeyValueSetting *) cmd->data;
 					
 					if (KVS) {
-						printf("Key: %s\n\r", KVS->key);
-						printf("Value: %s\n\r", KVS->value);
-						
 						if (SetKeyValueSetting(KVS->key, KVS->value))
 							printf("Setting Added\n\r");
 					}

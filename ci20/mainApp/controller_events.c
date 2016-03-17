@@ -72,7 +72,6 @@ static bool PostToFlowCommandsQueue(void *data, FlowControlCmd_Type type) {
 	* @param *context any additional data passed to the callback function
     */
 void doHeartBeat(FlowTaskID taskID, void *context) {
-	printf("doing heartbeat\r\n");
 	
 	KeyValueSetting *KVS = Flow_MemAlloc(sizeof(KeyValueSetting));
 	
@@ -116,7 +115,7 @@ void HeartbeatThread(FlowThread thread, void *context) {
 	printf("HeartbeatThread.\n\r");
 	
 	// set heartbeat schedule
-	FlowScheduler_ScheduleTask(doHeartBeat, NULL, 4, true);
+	FlowScheduler_ScheduleTask(doHeartBeat, NULL, HEARTBEAT_TIMER, true);
 	
 	for(;;){};
 }

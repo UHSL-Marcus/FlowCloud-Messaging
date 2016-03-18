@@ -127,7 +127,12 @@ bool PublishEvent(char *topic, char *contentType, char *content, int expireInSec
 	return success;		
 }
 
-
+/** Set a Key Value pair in this devices key value store
+    *
+    * @param *key The storage key 
+    * @param *value The value to be stored
+	* @return bool success
+    */
 bool SetKeyValueSetting(char* key, char* value) {
 	
 	FlowMemoryManager memoryManager = FlowMemoryManager_New();

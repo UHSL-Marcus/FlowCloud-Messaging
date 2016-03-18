@@ -25,7 +25,8 @@ static void FreeCmd(FlowControlCmd *cmd)
 		Flow_MemFree((void **)&cmd->data);
 	}
 
-	Flow_MemFree((void **)&cmd);
+	if (cmd)
+		Flow_MemFree((void **)&cmd);
 }
 
 /** Create and post an event to the controller thread's queue.  

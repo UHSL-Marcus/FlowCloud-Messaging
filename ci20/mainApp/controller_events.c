@@ -100,7 +100,7 @@ void doHeartBeat(FlowTaskID taskID, void *context) {
 					Flow_MemFree((void **)&KVS);
 				}
 				
-				Flow_MemFree((void **)&value); // memory is allocated in HeartbeatEvent_BuildMessage
+				Flow_MemFree((void **)&value); // memory is allocated in HeartbeatKeyValueSetting_BuildData
 				
 			}
 			FlowMemoryManager_Free(&memoryManager);
@@ -110,9 +110,16 @@ void doHeartBeat(FlowTaskID taskID, void *context) {
 	}
 }
 
+
+/** Entry function into the heartbeat thread. Starts the schedule and then loops.
+    *
+    * @param thread Identity of this thread (required param) 
+    * @param *context For extra info to be passed to the thread on creation (required param)
+    */
 void HeartbeatThread(FlowThread thread, void *context) {
 	
 	printf("HeartbeatThread.\n\r");
+	doHeartBeat(-1, NULL);
 	
 	// set heartbeat schedule
 	FlowScheduler_ScheduleTask(doHeartBeat, NULL, HEARTBEAT_TIMER, true);
@@ -206,11 +213,13 @@ static void ParseMessage(char* data) {
 				}
 			}
 		}
+		
+		// free the memory
+		Tree_Delete(xmlRoot);
+		xmlRoot = NULL;
 	}
 	
-	// free the memory
-	Tree_Delete(xmlRoot);
-	xmlRoot = NULL;
+	
 }
 
 /** Main loop for this thread. Checks for queued events from the flow thread and sends them to the correct handler/parser

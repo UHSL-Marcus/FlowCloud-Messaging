@@ -1,0 +1,26 @@
+Flow command handler -> c++ class that wraps listening for incomming messages. Map message types to callback functions in the main loop
+
+C++ class:
+
+public:
+
+init method - inialise flow, include starting message listener
+command attach - attach a command handler to an incomming command from flow
+command send - send a command via flow (option to wait for status, or use thread/callback method)
+Key/Value command - request or get Key/value setting from flow (option to wait for status, or use thread/callback method)
+
+
+
+same C code as used before to listen for messages. 
+When message recieved, check its for us etc etc.
+extract the message command and body
+pass this to the C++ handler
+
+
+c++ class:
+
+
+
+
+Async Flow outgoing handler -> c++ class that wraps outgoing flow activities (Sending messages, getting/setting key value, making queries). Option to wait for reply or set callback. 
+

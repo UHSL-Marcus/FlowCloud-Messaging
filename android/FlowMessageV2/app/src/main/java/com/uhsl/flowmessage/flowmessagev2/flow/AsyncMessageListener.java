@@ -8,7 +8,15 @@ import com.imgtec.flow.MessagingEvent;
  * Created by Marcus on 26/02/2016.
  */
 public interface AsyncMessageListener {
-    void onMessageRecieved(MessagingEvent messagingEvent);
+    /**
+     * Called when a new message arrives
+     * @param messagingEvent Holds the message info
+     */
+    void onMessageReceived(MessagingEvent messagingEvent);
 
-    void onResponseRecieved(MessagingEvent response);
+    /**
+     * Called when a new auto response is arrives
+     * @param response Holds the response info
+     */
+    void onResponseReceived(MessagingEvent response);
 }

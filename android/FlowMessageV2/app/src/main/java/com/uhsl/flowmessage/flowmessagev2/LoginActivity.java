@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.imgtec.flow.Flow;
 import com.uhsl.flowmessage.flowmessagev2.flow.FlowController;
 import com.uhsl.flowmessage.flowmessagev2.utils.ActivityController;
 import com.uhsl.flowmessage.flowmessagev2.utils.AsyncCall;
@@ -49,7 +48,7 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
 
         if (true) { //TODO: check internet connectivity
             if (ConfigSettings.checkServerSettings(this))
-                initaliseFlow(this);
+                initialiseFlow(this);
             else {
                 doSettingsSnackbar();
             }
@@ -58,6 +57,7 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
         }
     }
 
+    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.settings_only_toolbar, menu);
         return super.onCreateOptionsMenu(menu);
@@ -72,7 +72,11 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
             return super.onOptionsItemSelected(item);
     }
 
-    private void initaliseFlow(final Activity activity) {
+    /**
+     * Initialise the flow connection
+     * @param activity This activity
+     */
+    private void initialiseFlow(final Activity activity) {
 
         BackgroundTask.run(new AsyncRun() {
             @Override
@@ -90,7 +94,7 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
                                 System.out.println("has saved: " + flowController.hasSavedCredentials());
 
 
-                                if (flowController.isUserLoggedIn())
+                                if (flowController.isUserLoggedIn()) //TODO: maybe new connection? test
                                     ActivityController.changeActivity(activity, new Intent(activity, MainActivity.class));
 
                                 if (flowController.hasSavedCredentials())
@@ -115,6 +119,9 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
 
     }
 
+    /**
+     * Display the snack bar prompting the user to go to server settings
+     */
     private void doSettingsSnackbar() {
 
         ActivityController.showSnackbar(findViewById(R.id.login_coordinator_layout), "edit settings", "Settings",
@@ -128,6 +135,10 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
     }
 
 
+    /**
+     * Start login
+     * @param view Calling view
+     */
     public void doLogin(View view) {
         if (flowController.isFlowInit())
             flowLogin(false);
@@ -135,6 +146,10 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
             doSettingsSnackbar();
     }
 
+    /**
+     * Login Actual
+     * @param useSaved Use saved credentials or not
+     */
     private void flowLogin(final boolean useSaved) {
         System.out.println("flow login: " + useSaved);
         //todo: validate, timeout using post delayed. cancel future. remove callbacks, logging in visual
@@ -149,6 +164,11 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
         }, this, 2);
     }
 
+    /**
+     * Called when BackgroundTask.call() finishes
+     * @param result Result of the task
+     * @param task Task ID, to identify the correct result
+     */
     public void onBackGroundTaskResult(final Boolean result, final int task) {
         handler.post(new Runnable() {
             @Override
@@ -157,8 +177,10 @@ public class LoginActivity extends AppCompatActivity implements BackgroundTask.C
                     if (result) {
                         //todo: timeout callback remove
                         System.out.println("login good");
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra(MainActivity.NEW_CONNECTION, true);
                         ActivityController.changeActivity(LoginActivity.this,
-                                new Intent(LoginActivity.this, MainActivity.class));
+                                intent);
                     } else {
                         System.out.println("bad login: " + flowController.getLastFlowError().toString());
                     }

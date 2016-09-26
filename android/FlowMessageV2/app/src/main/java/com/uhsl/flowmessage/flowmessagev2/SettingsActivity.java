@@ -2,7 +2,6 @@ package com.uhsl.flowmessage.flowmessagev2;
 
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,7 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.imgtec.flow.Flow;
 import com.uhsl.flowmessage.flowmessagev2.flow.FlowController;
 import com.uhsl.flowmessage.flowmessagev2.utils.ActivityController;
 import com.uhsl.flowmessage.flowmessagev2.utils.AsyncCall;
@@ -60,8 +58,12 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
+
     /* View setup methods */
 
+    /**
+     * Set text in the server info text views
+     */
     private void setEditTextViews() {
         serverEdit = (EditText) findViewById(R.id.settings_server_address_editText);
         oAuthKeyEdit = (EditText) findViewById(R.id.settings_server_key_editText);
@@ -73,6 +75,7 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
             oAuthSecretEdit.setText(ConfigSettings.getStringSetting(this, ConfigSettings.OAUTH_SECRET));
         }
 
+        // listener for changes in the EditText boxes
         TextWatcher textWatcher = new TextWatcher() {
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -93,8 +96,12 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
 
 
 
-    /* Listener callback methods */
+    /* Listener button callback methods */
 
+    /**
+     * Save the entered setting to the config
+     * @param view The invoking view
+     */
     public void doSaveSettings(View view) {
         String server = serverEdit.getText().toString();
         String oAuthKey = oAuthKeyEdit.getText().toString();
@@ -106,6 +113,10 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
 
     }
 
+    /**
+     * Save settings (if not already saved) and attempt a reconnect to the Flow server
+     * @param view The invoking view
+     */
     public void doReconnect(View view) {
 
         doSaveSettings(view);
@@ -116,7 +127,7 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
             @Override
             public Boolean call() {
                 FlowController flowController = FlowController.getInstance(SettingsActivity.this);
-                flowController.reinitiliseFlow(SettingsActivity.this);
+                flowController.reinitialiseFlow(SettingsActivity.this);
                 System.out.println("Done return: " + flowController.isFlowInit());
                 return flowController.isFlowInit();
             }
@@ -125,6 +136,11 @@ public class SettingsActivity extends AppCompatActivity implements BackgroundTas
     }
 
 
+    /**
+     * The result of the asynchronous reconnection attempt
+     * @param result Result of the async execution
+     * @param task Task ID
+     */
     public void onBackGroundTaskResult(final Boolean result, final int task) {
         System.out.println("callback");
         handler.post(new Runnable() {

@@ -20,12 +20,19 @@ import java.util.concurrent.FutureTask;
 /**
  * Created by Marcus on 22/02/2016.
  */
+
 public class BackgroundTask {
 
     private static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-
-   public static <RESULT> void call(final AsyncCall<RESULT> asyncCall, final Callback<RESULT> callback, final int task) {
+    /**
+     * A background task, calls the method onBackGroundTaskResult() on the listener class (@callback)
+     * @param asyncCall The task to call
+     * @param callback The callback listener class
+     * @param task ID of the task
+     * @param <RESULT> the result type, must match the result type in @asyncCall
+     */
+    public static <RESULT> void call(final AsyncCall<RESULT> asyncCall, final Callback<RESULT> callback, final int task) {
 
        final FutureTask<RESULT> futureTask = new FutureTask<RESULT>(new Callable<RESULT>() {
            @Override
@@ -57,8 +64,12 @@ public class BackgroundTask {
            }
        }).start();
 
-   }
+    }
 
+    /**
+     * Runs a background async task with no result
+     * @param asyncRun The task to run
+     */
     public static void run(final AsyncRun asyncRun){
         Runnable run = new Runnable() {
             @Override
@@ -78,7 +89,16 @@ public class BackgroundTask {
 
     }
 
+    /**
+     * Interface for BackgroundTask.call listeners
+     * @param <RESULT> result type
+     */
     public interface Callback<RESULT> {
+        /**
+         * Callback method, called on the listener class
+         * @param result Result of the async execution
+         * @param task Task ID
+         */
         void onBackGroundTaskResult(RESULT result, int task);
     }
 

@@ -29,7 +29,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Connection info\nplaceholder space\n\n"
+                android:lines="3"
+                android:text="Connection info\n placeholder space\n more info"
                 android:id="@+id/main_connection_info_textView" />
 
             <Button
